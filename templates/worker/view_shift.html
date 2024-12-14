@@ -1,0 +1,22 @@
+<!-- templates/worker/view_shift.html -->
+{% extends "base_generic.html" %}
+
+{% block title %}View Shift{% endblock %}
+
+{% block content %}
+  <h2>View Shift</h2>
+  <p><strong>Worker:</strong> {{ shift.worker.username }}</p>
+  <p><strong>Date:</strong> {{ shift.date }}</p>
+  <p><strong>Start Time:</strong> {{ shift.start_time }}</p>
+  <p><strong>End Time:</strong> {{ shift.end_time }}</p>
+  <p><strong>Location:</strong> {{ shift.location.name }}</p>
+  <p><strong>Completed:</strong> {{ shift.is_completed }}</p>
+  <p><strong>Sleep In:</strong> {{ shift.sleep_in }}</p>
+  <p><strong>Signature:</strong></p>
+  {% if shift.signature %}
+    <img src="{{ shift.signature }}" alt="Signature" style="border: 1px solid #000;">
+  {% else %}
+    <p>No signature available.</p>
+  {% endif %}
+  <p><a href="{% url 'worker_shift_list' %}">Back to Shift List</a></p>
+{% endblock %}

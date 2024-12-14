@@ -1,0 +1,23 @@
+<!-- templates/admin/manage_shifts.html -->
+{% extends "base_generic.html" %}
+
+{% block title %}Manage Shifts{% endblock %}
+
+{% block content %}
+  <h2>Manage Shifts</h2>
+  <nav><a href="{% url 'admin_dashboard' %}"> Home</a></nav>
+  <ul>
+    {% for shift in shifts %}
+      <li>
+        {{ shift.worker.username }} - {{ shift.date }} - {{ shift.start_time }} to {{ shift.end_time }}
+        <a href="{% url 'view_shift' shift.id %}">View</a>
+        <a href="{% url 'edit_shift' shift.id %}">Edit</a>
+        <form method="post" action="{% url 'delete_shift' shift.id %}" style="display:inline;">
+          {% csrf_token %}
+          <button type="submit">Delete</button>
+        </form>
+      </li>
+    {% endfor %}
+  </ul>
+  <p><a href="{% url 'create_shift' %}">Create Shift</a></p>
+{% endblock %}

@@ -1,0 +1,13 @@
+<!-- templates/admin/create_shift.html -->
+{% extends "base_generic.html" %}
+
+{% block title %}Create Shift{% endblock %}
+
+{% block content %}
+  <h2>Create Shift</h2>
+  <form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Create</button>
+  </form>
+{% endblock %}

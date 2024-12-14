@@ -1,0 +1,13 @@
+<!-- templates/admin/edit_shift.html -->
+{% extends "base_generic.html" %}
+
+{% block title %}Edit Shift{% endblock %}
+
+{% block content %}
+  <h2>Edit Shift</h2>
+  <form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Save</button>
+  </form>
+{% endblock %}

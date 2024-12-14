@@ -1,0 +1,21 @@
+<!-- templates/admin/manage_users.html -->
+{% extends "base_generic.html" %}
+
+{% block title %}Manage Users{% endblock %}
+
+{% block content %}
+  <h2>Manage Users</h2>
+  <nav><a href="{% url 'admin_dashboard' %}"> Home</a></nav>
+  <p><a href="{% url 'create_user' %}">Create User</a></p>
+  <ul>
+    {% for user in users %}
+      <li>
+        {{ user.username }} - {{ user.email }}
+        <form method="post" action="{% url 'delete_user' user.id %}" style="display:inline;">
+          {% csrf_token %}
+          <button type="submit">Delete</button>
+        </form>
+      </li>
+    {% endfor %}
+  </ul>
+{% endblock %}

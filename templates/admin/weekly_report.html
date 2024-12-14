@@ -1,0 +1,40 @@
+{% extends "admin/base_site.html" %}
+
+{% block content %}
+<h1>Weekly Shift Report</h1>
+
+<!-- Add link to go back to the shifts list -->
+<p><a href="{% url 'admin:shifts_shift_changelist' %}">Back to Shifts</a></p>
+
+<form method="get">
+    <label for="week_start">Start of Week:</label>
+    <input type="date" name="week_start" id="week_start">
+    <button type="submit">Filter</button>
+    <button type="submit" name="export" value="1">Export as CSV</button>
+</form>
+
+<table>
+    <thead>
+        <tr>
+            <th>Worker</th>
+            <th>Date</th>
+            <th>Start Time</th>
+            <th>End Time</th>
+            <th>Completed</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for worker, shifts in workers.items %}
+            {% for shift in shifts %}
+                <tr>
+                    <td>{{ worker }}</td>
+                    <td>{{ shift.date }}</td>
+                    <td>{{ shift.start_time }}</td>
+                    <td>{{ shift.end_time }}</td>
+                    <td>{{ shift.is_completed }}</td>
+                </tr>
+            {% endfor %}
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

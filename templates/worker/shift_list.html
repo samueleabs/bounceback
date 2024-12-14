@@ -1,0 +1,24 @@
+<!-- templates/worker/shift_list.html -->
+{% extends "base_generic.html" %}
+
+{% block content %}
+  <h2>Shift List</h2>
+  <li>
+    <form method="post" action="{% url 'worker_logout' %}">
+        {% csrf_token %}
+        <button type="submit">Logout</button>
+    </form>
+  </li>
+  <ul>
+    {% for shift in shifts %}
+      <li>
+        {{ shift.worker.username }} - {{ shift.date }} - {{ shift.start_time }} to {{ shift.end_time }}
+        {% if shift.is_completed %}
+          <a href="{% url 'view_shift' shift.id %}">View Shift</a>
+        {% else %}
+          <a href="{% url 'sign_off_shift' shift.id %}">Sign Off</a>
+        {% endif %}
+      </li>
+    {% endfor %}
+  </ul>
+{% endblock %}
