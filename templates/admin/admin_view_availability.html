@@ -1,0 +1,67 @@
+{% extends "admin/admin_base.html" %}
+{% load static %}
+
+{% block title %}View Worker Availability{% endblock %}
+
+{% block admin_content %}
+  <div class="header bg-primary py-3">
+    <div class="container-fluid">
+      <div class="header-body">
+        <div class="row align-items-center">
+          <div class="col-lg-6 col-7">
+            <h6 class="h2 text-white d-inline-block mb-0">View Worker Availability</h6>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="container-fluid mt-4">
+    <div class="row">
+      <div class="col">
+        <div class="card">
+          <div class="card-header border-0">
+            <h3 class="mb-0">Select Date</h3>
+          </div>
+          <div class="card-body">
+            <form method="get" action="{% url 'admin_view_availability' %}">
+              <div class="form-group">
+                <label for="date">Date</label>
+                <input type="date" name="date" class="form-control" value="{{ request.GET.date }}">
+              </div>
+              <button type="submit" class="btn btn-primary">Check Availability</button>
+            </form>
+          </div>
+        </div>
+        <div class="card mt-4">
+          <div class="card-header border-0">
+            <h3 class="mb-0">Available Workers</h3>
+          </div>
+          <div class="card-body">
+            {% if availability %}
+              <table class="table table-striped">
+                <thead>
+                  <tr>
+                    <th>Worker</th>
+                    <th>Date</th>
+                    <th>Available</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for avail in availability %}
+                    <tr>
+                      <td>{{ avail.worker.username }}</td>
+                      <td>{{ avail.date }}</td>
+                      <td>{{ avail.is_available|yesno:"Yes,No" }}</td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            {% else %}
+              <p>No availability data found for the selected date.</p>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

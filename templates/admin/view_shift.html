@@ -1,22 +1,77 @@
-<!-- templates/admin/view_shift.html -->
-{% extends "base_generic.html" %}
+{% extends "admin/admin_base.html" %}
 
 {% block title %}View Shift{% endblock %}
 
-{% block content %}
-  <h2>View Shift</h2>
-  <p><strong>Worker:</strong> {{ shift.worker.username }}</p>
-  <p><strong>Date:</strong> {{ shift.date }}</p>
-  <p><strong>Start Time:</strong> {{ shift.start_time }}</p>
-  <p><strong>End Time:</strong> {{ shift.end_time }}</p>
-  <p><strong>Location:</strong> {{ shift.location.name }}</p>
-  <p><strong>Completed:</strong> {{ shift.is_completed }}</p>
-  <p><strong>Sleep In:</strong> {{ shift.sleep_in }}</p>
-  <p><strong>Signature:</strong></p>
-  {% if shift.signature %}
-    <img src="{{ shift.signature }}" alt="Signature" style="border: 1px solid #000;">
-  {% else %}
-    <p>No signature available.</p>
-  {% endif %}
-  <p><a href="{% url 'manage_shifts' %}">Back to Manage Shifts</a></p>
+{% block admin_content %}
+  <div class="header bg-primary py-3">
+    <div class="container-fluid">
+      <div class="header-body">
+        <div class="row align-items-center">
+          <div class="col-lg-6 col-7">
+            <h6 class="h2 text-white d-inline-block mb-0">View Shift</h6>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="container-fluid mt-4">
+    <div class="row">
+      <div class="col">
+        <div class="card">
+          <div class="card-header border-0">
+            <h3 class="mb-0">Shift Details</h3>
+          </div>
+          <div class="card-body">
+            <div class="row">
+              <div class="col-md-6">
+                <h4>Date</h4>
+                <p>{{ shift.date }}</p>
+              </div>
+              <div class="col-md-6">
+                <h4>Location</h4>
+                <p>{{ shift.location.name }}</p>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-6">
+                <h4>Start Time</h4>
+                <p>{{ shift.start_time }}</p>
+              </div>
+              <div class="col-md-6">
+                <h4>End Time</h4>
+                <p>{{ shift.end_time }}</p>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-6">
+                <h4>Worker</h4>
+                <p>{{ shift.worker.first_name }} {{ shift.worker.last_name }}</p>
+              </div>
+              <div class="col-md-6">
+                <h4>Completed</h4>
+                <p>{% if shift.is_completed %}Yes{% else %}No{% endif %}</p>
+              </div>
+            </div>
+            {% if shift.is_completed %}
+            <div class="row">
+              <div class="col-md-6">
+                <h4>Signature</h4>
+                <img src="{{ shift.signature }}" alt="Signature" class="img-fluid">
+              </div>
+              <div class="col-md-6">
+                <h4>Signed By</h4>
+                <p>{{ shift.signed_by }}</p>
+              </div>
+            </div>
+            {% endif %}
+          </div>
+          <div class="card-footer py-4">
+            <a href="{% url 'edit_shift' shift.id %}" class="btn btn-warning">Edit Shift</a>
+            <a href="{% url 'delete_shift' shift.id %}" class="btn btn-danger">Delete Shift</a>
+            <a href="{% url 'manage_shifts' %}" class="btn btn-secondary">Back to Shifts</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 {% endblock %}

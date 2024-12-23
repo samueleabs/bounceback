@@ -1,0 +1,153 @@
+{% extends "admin/admin_base.html" %}
+
+{% block title %}Manage Locations{% endblock %}
+
+{% block admin_content %}
+  <div class="header bg-primary py-3">
+    <div class="container-fluid">
+      <div class="header-body">
+        <div class="row align-items-center">
+          <div class="col-lg-6 col-7">
+            <h6 class="h2 text-white d-inline-block mb-0">Manage Locations</h6>
+          </div>
+          <div class="col-lg-6 col-5 text-right">
+            <a href="{% url 'create_location' %}" class="btn btn-white">Add New Location</a>
+          </div>
+        </div>
+        <div class="row align-items-center py-2">
+          <div class="col-lg-12 col-12">
+            <form method="get" class="form-inline" id="search-form">
+              <input type="text" name="search" class="form-control mr-2" placeholder="Search" value="{{ search_query }}" id="search-input">
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="container-fluid mt-4">
+    <div class="row">
+      <div class="col">
+        <div class="card">
+          <div class="card-header border-0">
+            <h3 class="mb-0">Locations</h3>
+          </div>
+          <div class="table-responsive">
+            <table class="table align-items-center table-flush table-bordered" id="locations-table">
+              <thead class="thead-light">
+                <tr>
+                  <th scope="col">
+                    <a href="?sort_by=name&order={% if sort_by == 'name' and order == 'asc' %}desc{% else %}asc{% endif %}">
+                      Name
+                      {% if sort_by == 'name' %}
+                        {% if order == 'asc' %}
+                          <i class="fas fa-arrow-up"></i>
+                        {% else %}
+                          <i class="fas fa-arrow-down"></i>
+                        {% endif %}
+                      {% endif %}
+                    </a>
+                  </th>
+                  <th scope="col">
+                    <a href="?sort_by=rate&order={% if sort_by == 'rate' and order == 'asc' %}desc{% else %}asc{% endif %}">
+                      Rate
+                      {% if sort_by == 'rate' %}
+                        {% if order == 'asc' %}
+                          <i class="fas fa-arrow-up"></i>
+                        {% else %}
+                          <i class="fas fa-arrow-down"></i>
+                        {% endif %}
+                      {% endif %}
+                    </a>
+                  </th>
+                  <th scope="col">Address</th>
+                  <th scope="col">Postcode</th>
+                  <th scope="col">Latitude</th>
+                  <th scope="col">Longitude</th>
+                  <th scope="col">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="locations-tbody">
+                {% for location in locations %}
+                  <tr>
+                    <td>{{ location.name }}</td>
+                    <td>{{ location.rate }}</td>
+                    <td>{{ location.address }}</td>
+                    <td>{{ location.postcode }}</td>
+                    <td>{{ location.latitude }}</td>
+                    <td>{{ location.longitude }}</td>
+                    <td>
+                      <a href="{% url 'edit_location' location.id %}" class="btn btn-sm btn-warning">Edit</a>
+                      <a href="{% url 'delete_location' location.id %}" class="btn btn-sm btn-danger">Delete</a>
+                    </td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+          <div class="card-footer py-4">
+            <nav aria-label="...">
+              <ul class="pagination justify-content-end mb-0">
+                {% if locations.has_previous %}
+                  <li class="page-item">
+                    <a class="page-link" href="?page={{ locations.previous_page_number }}" tabindex="-1">
+                      <i class="fas fa-angle-left"></i>
+                      <span class="sr-only">Previous</span>
+                    </a>
+                  </li>
+                {% endif %}
+                {% for num in locations.paginator.page_range %}
+                  {% if locations.number == num %}
+                    <li class="page-item active">
+                      <a class="page-link" href="#">{{ num }}</a>
+                    </li>
+                  {% elif num > locations.number|add:'-3' and num < locations.number|add:'3' %}
+                    <li class="page-item">
+                      <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                    </li>
+                  {% endif %}
+                {% endfor %}
+                {% if locations.has_next %}
+                  <li class="page-item">
+                    <a class="page-link" href="?page={{ locations.next_page_number }}">
+                      <i class="fas fa-angle-right"></i>
+                      <span class="sr-only">Next</span>
+                    </a>
+                  </li>
+                {% endif %}
+              </ul>
+            </nav>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const searchInput = document.getElementById('search-input');
+      const locationsTableBody = document.getElementById('locations-tbody');
+
+      searchInput.addEventListener('input', function () {
+        const query = searchInput.value.toLowerCase();
+        const rows = locationsTableBody.getElementsByTagName('tr');
+
+        for (let i = 0; i < rows.length; i++) {
+          const cells = rows[i].getElementsByTagName('td');
+          let match = false;
+
+          for (let j = 0; j < cells.length; j++) {
+            if (cells[j].innerText.toLowerCase().includes(query)) {
+              match = true;
+              break;
+            }
+          }
+
+          if (match) {
+            rows[i].style.display = '';
+          } else {
+            rows[i].style.display = 'none';
+          }
+        }
+      });
+    });
+  </script>
+{% endblock %}

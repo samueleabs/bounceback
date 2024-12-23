@@ -1,0 +1,109 @@
+{% extends "admin/admin_base.html" %}
+
+{% block title %}View Timesheet{% endblock %}
+
+{% block admin_content %}
+  <div class="header bg-primary py-3">
+    <div class="container-fluid">
+      <div class="header-body">
+        <div class="row align-items-center">
+          <div class="col-lg-6 col-7">
+            <h6 class="h2 text-white d-inline-block mb-0">View Timesheet: {{ user.first_name }} {{ user.last_name }}</h6>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="container-fluid mt-4">
+    <div class="row">
+      <div class="col">
+        <div class="card mb-4">
+          <div class="card-header border-0">
+            <h3 class="mb-0">Select Location to View and Download Timesheet</h3>
+          </div>
+          <div class="card-body">
+            <form method="get" action="{% url 'download_timesheet_image' user.id %}">
+              <div class="form-group">
+                <label for="location">Location</label>
+                <select id="location" name="location" class="form-control" onchange="updateShiftsTable()">
+                  <option value="">Select a location</option>
+                  {% for location in locations %}
+                    <option value="{{ location }}">{{ location }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+              <button type="submit" class="btn btn-primary">Download Timesheet as Image</button>
+            </form>
+            <div class="download-buttons mt-3">
+              <a href="#" id="download-excel" class="btn btn-success">Download Timesheet as Excel</a>
+              <a href="#" id="download-pdf" class="btn btn-danger">Download Timesheet as PDF</a>
+            </div>
+          </div>
+        </div>
+        <div class="card mb-4">
+          <div class="card-header border-0">
+            <h3 class="mb-0">Shifts for Selected Location</h3>
+          </div>
+          <div class="table-responsive">
+            <table class="table align-items-center table-flush">
+              <thead class="thead-light">
+                <tr>
+                  <th scope="col">Date</th>
+                  <th scope="col">Start Time</th>
+                  <th scope="col">End Time</th>
+                  <th scope="col">Completed</th>
+                  <th scope="col">Signed By</th>
+                </tr>
+              </thead>
+              <tbody id="shifts-table-body">
+                <!-- Shifts will be dynamically inserted here -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const shiftsByLocation = {{ shifts_by_location_json|safe }};
+    
+    function updateShiftsTable() {
+      const location = document.getElementById('location').value;
+      const tableBody = document.getElementById('shifts-table-body');
+      tableBody.innerHTML = '';
+      
+      if (location && shiftsByLocation[location]) {
+        shiftsByLocation[location].forEach(shift => {
+          const row = document.createElement('tr');
+          
+          const dateCell = document.createElement('td');
+          dateCell.textContent = shift.date;
+          row.appendChild(dateCell);
+          
+          const startTimeCell = document.createElement('td');
+          startTimeCell.textContent = shift.start_time;
+          row.appendChild(startTimeCell);
+          
+          const endTimeCell = document.createElement('td');
+          endTimeCell.textContent = shift.end_time;
+          row.appendChild(endTimeCell);
+          
+          const completedCell = document.createElement('td');
+          completedCell.textContent = shift.is_completed ? 'Yes' : 'No';
+          row.appendChild(completedCell);
+          
+          const signedByCell = document.createElement('td');
+          signedByCell.textContent = shift.signed_by;
+          row.appendChild(signedByCell);
+          
+          tableBody.appendChild(row);
+        });
+      }
+
+      // Update the download links with the selected location
+      document.getElementById('download-excel').href = "{% url 'download_timesheet_excel' user.id %}?location=" + encodeURIComponent(location);
+      document.getElementById('download-pdf').href = "{% url 'download_timesheet_pdf' user.id %}?location=" + encodeURIComponent(location);
+    }
+  </script>
+{% endblock %}

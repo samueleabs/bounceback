@@ -13,24 +13,35 @@ class WorkerProfile(models.Model):
 class Location(models.Model):
     name = models.CharField(max_length=100)
     rate = models.DecimalField(max_digits=10, decimal_places=2)
+    address = models.TextField()
+    postcode = models.CharField(max_length=20)
+    latitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)
+    longitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)
 
     def __str__(self):
         return self.name
-
 class Shift(models.Model):
-    worker = models.ForeignKey(User, on_delete=models.CASCADE, related_name="shifts")
+    worker = models.ForeignKey(User, on_delete=models.CASCADE)
     location = models.ForeignKey(Location, on_delete=models.CASCADE)
     date = models.DateField()
     start_time = models.TimeField()
     end_time = models.TimeField()
-    is_completed = models.BooleanField(default=False)
     sleep_in = models.BooleanField(default=False)
-    signature = models.TextField(blank=True, null=True)  # Add this field to store the signature
+    is_completed = models.BooleanField(default=False)
+    signature = models.TextField(blank=True, null=True)  # Store as data URL or file path
+    signed_by = models.CharField(max_length=255, blank=True, null=True)  # Name of the person signing the timesheet
+    timesheet_generated = models.BooleanField(default=False)  # Field to mark timesheet generation
+
+    def __str__(self):
+        return f"{self.worker.username} - {self.date} - {self.location.name}"
 
 class Availability(models.Model):
     worker = models.ForeignKey(User, on_delete=models.CASCADE, related_name="availability")
-    day = models.CharField(max_length=9, choices=[("Monday", "Monday"), ("Tuesday", "Tuesday"), ("Wednesday", "Wednesday"), ("Thursday", "Thursday"), ("Friday", "Friday"), ("Saturday", "Saturday"), ("Sunday", "Sunday")])
+    date = models.DateField()
     is_available = models.BooleanField(default=True)
+
+    def __str__(self):
+        return f"{self.worker.username} - {self.date}"
 
 class Message(models.Model):
     sender = models.ForeignKey(User, on_delete=models.CASCADE, related_name="sent_messages")

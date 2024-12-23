@@ -1,22 +1,96 @@
-<!-- templates/admin/dashboard.html -->
-{% extends "base_generic.html" %}
+{% extends "admin/admin_base.html" %}
 
 {% block title %}Admin Dashboard{% endblock %}
 
-{% block content %}
-  <h2>Admin Dashboard</h2>
-  <nav>
-    <ul>
-        <li><a href="{% url 'manage_shifts' %}">Shifts</a></li>
-        <li><a href="{% url 'set_availability' %}">Set Availability</a></li>
-        <li><a href="{% url 'manage_users' %}"> Users</a></li>
-        <li>
-            <form method="post" action="{% url 'worker_logout' %}">
-                {% csrf_token %}
-                <button type="submit">Logout</button>
+{% block admin_content %}
+  <div class="header bg-primary py-3">
+    <div class="container-fluid">
+      <div class="header-body">
+        <div class="row align-items-center">
+          <div class="col-lg-6 col-7">
+            <h6 class="h2 text-white d-inline-block mb-0">Admin Dashboard</h6>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="container-fluid mt-4">
+    <div class="row">
+      <div class="col-lg-6">
+        <div class="card">
+          <div class="card-header border-0">
+            <h3 class="mb-0">Shifts per Day</h3>
+            <form method="get" class="form-inline">
+              <label for="selected_date" class="mr-2">Select Week Starting Monday:</label>
+              <input type="date" name="selected_date" id="selected_date" class="form-control mr-2" value="{{ selected_date }}">
+              <br>
+              <button type="submit" class="btn btn-primary">Update</button>
             </form>
-        </li>
-    </ul>
-  </nav>
-  <p>Welcome to the admin dashboard.</p>
+          </div>
+          <div class="card-body">
+            <canvas id="shiftsChart"></canvas>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-6">
+        <div class="card">
+          <div class="card-header border-0">
+            <h3 class="mb-0">Unsigned Shifts</h3>
+          </div>
+          <div class="table-responsive">
+            <table class="table align-items-center table-flush">
+              <thead class="thead-light">
+                <tr>
+                  <th scope="col">Date</th>
+                  <th scope="col">Start Time</th>
+                  <th scope="col">End Time</th>
+                  <th scope="col">Location</th>
+                  <th scope="col">Worker</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for shift in unsigned_shifts %}
+                  <tr>
+                    <td>{{ shift.date }}</td>
+                    <td>{{ shift.start_time }}</td>
+                    <td>{{ shift.end_time }}</td>
+                    <td>{{ shift.location.name }}</td>
+                    <td>{{ shift.worker.first_name }} {{ shift.worker.last_name }}</td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+          <div class="card-footer py-4">
+            <a href="{% url 'manage_shifts' %}" class="btn btn-primary">View All Shifts</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var ctx = document.getElementById('shiftsChart').getContext('2d');
+        var shiftsChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: {{ days_of_week|safe }},
+                datasets: [{
+                    label: 'Number of Shifts',
+                    data: {{ shifts_per_day|safe }},
+                    backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    });
+</script>
 {% endblock %}

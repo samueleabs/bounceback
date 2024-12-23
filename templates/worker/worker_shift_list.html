@@ -1,0 +1,155 @@
+{% extends "profile/profile_base.html" %}
+
+{% block title %}My Shifts{% endblock %}
+
+{% block profile_content %}
+  <div class="header bg-primary py-3">
+    <div class="container-fluid">
+      <div class="header-body">
+        <div class="row align-items-center">
+          <div class="col-lg-6 col-7">
+            <h6 class="h2 text-white d-inline-block mb-0">My Shifts</h6>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="container-fluid mt-4">
+    <div class="row">
+      <div class="col">
+        <div class="card mb-4">
+          <div class="card-header border-0">
+            <span class="mb-0 text-lg text-black font-weight-bold">Welcome, {{ request.user.username }}</span>
+            <h3 class="mb-0">Today's Shifts</h3>
+          </div>
+          <div class="card-body">
+            {% if today_shifts %}
+              <div class="row">
+                {% for shift in today_shifts %}
+                  <div class="col-md-4 col-sm-6 mb-4">
+                    <div class="card">
+                      <div class="card-body">
+                        <h5 class="card-title">{{ shift.location.name }}</h5>
+                        <p class="card-text">
+                          <strong>Start Time:</strong> {{ shift.start_time }}<br>
+                          <strong>End Time:</strong> {{ shift.end_time }}<br>
+                          <strong>Completed:</strong> {{ shift.is_completed|yesno:"Yes,No" }}
+                        </p>
+                        <a href="{% url 'view_shift' shift.id %}" class="btn bg-gradient-info btn-sm">View</a>
+                        {% if not shift.is_completed %}
+                          <a href="{% url 'sign_off_shift' shift.id %}" class="btn bg-gradient-warning btn-sm">Sign</a>
+                        {% endif %}
+                      </div>
+                    </div>
+                  </div>
+                {% endfor %}
+              </div>
+            {% else %}
+              <p>No shifts today.</p>
+            {% endif %}
+          </div>
+        </div>
+        <div class="card mb-4">
+          <div class="card-header border-0">
+            <h3 class="mb-0">Upcoming Shifts</h3>
+          </div>
+          <div class="card-body">
+            {% if upcoming_shifts %}
+              <div class="table-responsive">
+                <table id="upcomingShiftsTable" class="table table-striped">
+                  <thead>
+                    <tr>
+                      <th>Date</th>
+                      <th>Start Time</th>
+                      <th>End Time</th>
+                      <th>Location</th>
+                      <th>Completed</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for shift in upcoming_shifts %}
+                      <tr>
+                        <td>{{ shift.date }}</td>
+                        <td>{{ shift.start_time }}</td>
+                        <td>{{ shift.end_time }}</td>
+                        <td>{{ shift.location.name }}</td>
+                        <td>{{ shift.is_completed|yesno:"Yes,No" }}</td>
+                        <td>
+                          <a href="{% url 'view_shift' shift.id %}" class="btn bg-gradient-info btn-sm">View</a>
+                          {% if not shift.is_completed %}
+                            <a href="{% url 'sign_off_shift' shift.id %}" class="btn bg-gradient-success btn-sm">Sign</a>
+                          {% endif %}
+                        </td>
+                      </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+            {% else %}
+              <p>No upcoming shifts.</p>
+            {% endif %}
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header border-0">
+            <h3 class="mb-0">Previous Shifts</h3>
+          </div>
+          <div class="card-body">
+            {% if previous_shifts %}
+              <div class="table-responsive">
+                <table id="previousShiftsTable" class="table table-striped">
+                  <thead>
+                    <tr>
+                      <th>Date</th>
+                      <th>Start Time</th>
+                      <th>End Time</th>
+                      <th>Location</th>
+                      <th>Completed</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for shift in previous_shifts %}
+                      <tr>
+                        <td>{{ shift.date }}</td>
+                        <td>{{ shift.start_time }}</td>
+                        <td>{{ shift.end_time }}</td>
+                        <td>{{ shift.location.name }}</td>
+                        <td>{{ shift.is_completed|yesno:"Yes,No" }}</td>
+                        <td>
+                          <a href="{% url 'view_shift' shift.id %}" class="btn bg-gradient-info btn-sm">View</a>
+                        </td>
+                      </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+            {% else %}
+              <p>No previous shifts.</p>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}
+
+{% block extra_js %}
+  <!-- Include jQuery -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <!-- Include Bootstrap JS -->
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+  <!-- Include DataTables JS -->
+  <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+  <script>
+    $(document).ready(function() {
+      $('#upcomingShiftsTable').DataTable({
+        "order": [[0, "asc"]]
+      });
+      $('#previousShiftsTable').DataTable({
+        "order": [[0, "desc"]]
+      });
+    });
+  </script>
+{% endblock %}

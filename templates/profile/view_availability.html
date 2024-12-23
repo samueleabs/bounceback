@@ -1,0 +1,51 @@
+{% extends "profile/profile_base.html" %}
+
+{% block title %}View Availability{% endblock %}
+
+{% block profile_content %}
+  <div class="header bg-primary py-3">
+    <div class="container-fluid">
+      <div class="header-body">
+        <div class="row align-items-center">
+          <div class="col-lg-6 col-7">
+            <h6 class="h2 text-white d-inline-block mb-0">View Availability</h6>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="container-fluid mt-4">
+    <div class="row">
+      <div class="col">
+        <div class="card">
+          <div class="card-header border-0">
+            <h3 class="mb-0">Your Availability</h3>
+          </div>
+          <div class="card-body">
+            <a href="{% url 'set_availability' %}" class="btn bg-gradient-primary mb-3">Set Availability</a>
+            {% if availability %}
+              <table class="table table-striped">
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Available</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for avail in availability %}
+                    <tr>
+                      <td>{{ avail.date }}</td>
+                      <td>{{ avail.is_available|yesno:"Yes,No" }}</td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            {% else %}
+              <p>No availability data found.</p>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

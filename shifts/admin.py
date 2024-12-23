@@ -21,9 +21,8 @@ class ShiftAdmin(admin.ModelAdmin):
     search_fields = ('worker__username', 'location__name')
 
 class AvailabilityAdmin(admin.ModelAdmin):
-    list_display = ('worker', 'day', 'is_available')
-    list_filter = ('day', 'is_available')
-    search_fields = ('worker__username',)
+    list_display = ('worker', 'date', 'is_available')
+    list_filter = ('date', 'is_available')
 
 class MessageAdmin(admin.ModelAdmin):
     list_display = ('sender', 'receiver', 'timestamp')

@@ -1,17 +1,81 @@
-<!-- templates/worker/sign_off_shift.html -->
-{% extends "base_generic.html" %}
+{% extends "profile/profile_base.html" %}
 
 {% block title %}Sign Off Shift{% endblock %}
 
-{% block content %}
-  <h2>Sign Off Shift</h2>
-  <form method="post">
-    {% csrf_token %}
-    <canvas id="signature-pad" class="signature-pad" width="400" height="200" style="border: 1px solid #000;"></canvas>
-    <input type="hidden" name="signature" id="signature">
-    <button type="submit" onclick="saveSignature()">Sign Off</button>
-    <button type="button" onclick="clearSignature()">Clear</button>
-  </form>
+{% block profile_content %}
+  <div class="header bg-primary py-3">
+    <div class="container-fluid">
+      <div class="header-body">
+        <div class="row align-items-center">
+          <div class="col-lg-6 col-7">
+            <h6 class="h2 text-white d-inline-block mb-0">Sign Off Shift</h6>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="container-fluid mt-4">
+    <div class="row">
+      <div class="col">
+        <div class="card">
+          <div class="card-header border-0">
+            <h3 class="mb-0">Sign Off Shift</h3>
+          </div>
+          <div class="card-body">
+            <form method="post" action="{% url 'sign_off_shift' shift.id %}" onsubmit="return validateForm()">
+              {% csrf_token %}
+              <div class="form-group">
+                <label for="signature">Signature</label>
+                <canvas id="signature-pad" class="signature-pad" width="400" height="200" style="border: 1px solid #808080; border-radius: 10px;"></canvas>
+                <input type="hidden" name="signature" id="signature">
+              </div>
+              <div class="form-group">
+                <label for="signed_by">Signed By</label>
+                <input type="text" name="signed_by" class="form-control" required>
+              </div>
+              <button type="submit" class="btn bg-gradient-success">Sign Off</button>
+              <button type="button" class="btn bg-gradient-secondary" onclick="clearSignature()">Clear</button>
+              <button type="button" class="btn bg-gradient-danger" onclick="showDisclaimer()">Disclaimer</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Disclaimer Modal -->
+  <div class="modal fade" id="disclaimerModal" tabindex="-1" role="dialog" aria-labelledby="disclaimerModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="disclaimerModalLabel">Disclaimer</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          I am an authorised signatory of the above named client. I am signing to confirm
+          that the job Profile Title and Band of Agency Worker and the hours/shift that I
+          am authorizing are accurate and I approve payment. I understand that if I
+          knowingly provide false information this may result in disciplinary action and I
+          may be liable to prosecution and civil proceedings. I consent to the disclosure of
+          the information from this form to and by any Bounce Back Healthcare Solutions authorized body for the purpose to verification of this claim and investigated, prevention of fraud.
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn bg-gradient-primary" onclick="dismissDisclaimer()">OK</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+{% endblock %}
+
+{% block extra_js %}
+  <!-- Include jQuery -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <!-- Include Bootstrap JS -->
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+  <!-- Include Signature Pad JS -->
   <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.0.0/dist/signature_pad.umd.min.js"></script>
   <script>
     var canvas = document.getElementById('signature-pad');
@@ -24,6 +88,23 @@
 
     function clearSignature() {
         signaturePad.clear();
+    }
+
+    function showDisclaimer() {
+        $('#disclaimerModal').modal('show');
+    }
+
+    function dismissDisclaimer() {
+        $('#disclaimerModal').modal('hide');
+    }
+
+    function validateForm() {
+        if (signaturePad.isEmpty()) {
+            alert("Please provide a signature first.");
+            return false;
+        }
+        saveSignature();
+        return true;
     }
   </script>
 {% endblock %}

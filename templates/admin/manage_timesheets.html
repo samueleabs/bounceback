@@ -1,0 +1,56 @@
+{% extends "admin/admin_base.html" %}
+
+{% block title %}Manage Timesheets{% endblock %}
+
+{% block admin_content %}
+  <div class="header bg-primary py-3">
+    <div class="container-fluid">
+      <div class="header-body">
+        <div class="row align-items-center">
+          <div class="col-lg-6 col-7">
+            <h6 class="h2 text-white d-inline-block mb-0">Manage Timesheets</h6>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="container-fluid mt-4">
+    <div class="row">
+      <div class="col">
+        <div class="card">
+          <div class="card-header border-0">
+            <h3 class="mb-0">Timesheets Due</h3>
+          </div>
+          <div class="table-responsive">
+            <table class="table align-items-center table-flush">
+              <thead class="thead-light">
+                <tr>
+                  <th scope="col">First Name</th>
+                  <th scope="col">Last Name</th>
+                  <th scope="col">Email</th>
+                  <th scope="col">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for item in users_with_timesheet_status %}
+                  <tr>
+                    <td>{{ item.user.first_name }}</td>
+                    <td>{{ item.user.last_name }}</td>
+                    <td>{{ item.user.email }}</td>
+                    <td>
+                      {% if item.timesheet_generated %}
+                        <a href="{% url 'view_timesheet' item.user.id %}" class="btn btn-sm btn-primary">View Timesheet</a>
+                      {% else %}
+                        <a href="{% url 'generate_timesheet' item.user.id %}" class="btn btn-sm btn-warning">Generate Timesheet</a>
+                      {% endif %}
+                    </td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}
