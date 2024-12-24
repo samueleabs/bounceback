@@ -1,0 +1,55 @@
+body, html {
+    height: 100%;
+    margin: 0;
+}
+
+.landing-page {
+    background: url("../img/bb_back.jpg") no-repeat center center fixed;
+    background-size: cover;
+    height: 100%;
+    position: relative;
+}
+
+.overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+}
+
+.login-card {
+    background: rgba(255, 255, 255, 0.9);
+    padding: 20px;
+    border-radius: 10px;
+    transition: all 0.3s ease-in-out;
+}
+
+.login-card:hover {
+    transform: scale(1.05);
+}
+
+.navbar-logo {
+    width: 200px;
+    height: 40px;
+    object-fit: cover;
+}
+
+.inline-logo {
+    width: 250px;
+    height: 50px;
+    object-fit: cover;
+    vertical-align: middle;
+    margin-right: 10px;
+}
+
+/* Example of custom responsive styles */
+@media (max-width: 768px) {
+    .header {
+        text-align: center;
+    }
+    .card {
+        margin-bottom: 20px;
+    }
+}
