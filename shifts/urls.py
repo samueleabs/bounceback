@@ -29,7 +29,6 @@ urlpatterns = [
     path('dashboard/reset_password/<int:user_id>/', admin_reset_password, name='admin_reset_password'),
     path('dashboard/delete_user/<int:user_id>/', delete_user, name='delete_user'),
     path('dashboard/view_timesheet/<int:user_id>/', view_timesheet, name='view_timesheet'),
-    path('dashboard/download_timesheet_image/<int:user_id>/', download_timesheet_image, name='download_timesheet_image'),
     path('dashboard/download_timesheet_excel/<int:user_id>/', download_timesheet_excel, name='download_timesheet_excel'),
     path('dashboard/download_timesheet_pdf/<int:user_id>/', download_timesheet_pdf, name='download_timesheet_pdf'),
     path('dashboard/manage_locations/', manage_locations, name='manage_locations'),

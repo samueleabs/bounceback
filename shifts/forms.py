@@ -73,10 +73,25 @@ class CustomUserChangeForm(UserChangeForm):
             'is_staff': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
         }
 
-class UserProfileForm(forms.ModelForm):
+class WorkerUserChangeForm(UserChangeForm):
     class Meta:
         model = User
-        fields = ['first_name', 'last_name', 'email']
+        fields = ['username', 'email', 'first_name', 'last_name']
+        widgets = {
+            'username': forms.TextInput(attrs={'class': 'form-control'}),
+            'email': forms.EmailInput(attrs={'class': 'form-control'}),
+            'first_name': forms.TextInput(attrs={'class': 'form-control'}),
+            'last_name': forms.TextInput(attrs={'class': 'form-control'}),
+        }
+
+class UserProfileForm(forms.ModelForm):
+    class Meta:
+        model = WorkerProfile
+        fields = ['signature']
+        widgets = {
+            'signature': forms.Textarea(attrs={'rows': 5, 'cols': 40, 'class': 'form-control'}),
+        }
+        
 
 
 

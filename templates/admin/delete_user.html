@@ -25,8 +25,8 @@
             <p>Are you sure you want to delete {{ user.username }}?</p>
             <form method="post">
               {% csrf_token %}
-              <button type="submit" class="btn btn-danger">Delete</button>
-              <a href="{% url 'manage_users' %}" class="btn btn-secondary">Cancel</a>
+              <button type="submit" class="btn bg-gradient-danger">Delete</button>
+              <a href="{% url 'manage_users' %}" class="btn bg-gradient-secondary">Cancel</a>
             </form>
           </div>
         </div>

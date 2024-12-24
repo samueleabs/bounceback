@@ -4,7 +4,7 @@
 {% block title %}Delete Location{% endblock %}
 
 {% block admin_content %}
-  <div class="header bg-primary py-3">
+  <div class="header bg-danger py-3">
     <div class="container-fluid">
       <div class="header-body">
         <div class="row align-items-center">
@@ -26,8 +26,8 @@
             <p>Are you sure you want to delete {{ location.name }}?</p>
             <form method="post" action="{% url 'delete_location' location.id %}">
               {% csrf_token %}
-              <button type="submit" class="btn btn-danger">Yes, delete</button>
-              <a href="{% url 'manage_locations' %}" class="btn btn-secondary">Cancel</a>
+              <button type="submit" class="btn bg-gradient-danger">Yes, delete</button>
+              <a href="{% url 'manage_locations' %}" class="btn bg-gradient-secondary">Cancel</a>
             </form>
           </div>
         </div>

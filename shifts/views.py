@@ -25,13 +25,8 @@ from django.core.serializers.json import DjangoJSONEncoder
 from collections import defaultdict
 from openpyxl import Workbook
 from openpyxl.styles import Font
-from reportlab.lib.pagesizes import letter
-from reportlab.pdfgen import canvas
-from reportlab.lib import colors
-from reportlab.lib.units import inch
-from reportlab.platypus import Table, TableStyle
 import tempfile
-
+from .utils import *
 
 
 def landing_page(request):
@@ -390,18 +385,39 @@ class WorkerLogoutView(auth_views.LogoutView):
 
 @login_required
 def view_profile(request):
-    return render(request, 'profile/view_profile.html', {'user': request.user})
+    profile, created = WorkerProfile.objects.get_or_create(user=request.user)
+    return render(request, 'profile/view_profile.html', {'profile': profile})
 
 @login_required
 def edit_profile(request):
-    if request.method == 'POST':
-        form = UserProfileForm(request.POST, instance=request.user)
-        if form.is_valid():
-            form.save()
-            return redirect('view_profile')
+    if request.user.is_staff:
+        user_form = CustomUserChangeForm(instance=request.user)
     else:
-        form = UserProfileForm(instance=request.user)
-    return render(request, 'profile/edit_profile.html', {'form': form})
+        user_form = WorkerUserChangeForm(instance=request.user)
+    
+    profile, created = WorkerProfile.objects.get_or_create(user=request.user)
+    profile_form = UserProfileForm(instance=profile)
+
+    if request.method == 'POST':
+        if request.user.is_staff:
+            user_form = CustomUserChangeForm(request.POST, instance=request.user)
+        else:
+            user_form = WorkerUserChangeForm(request.POST, instance=request.user)
+        
+        profile_form = UserProfileForm(request.POST, instance=profile)
+        if user_form.is_valid() and profile_form.is_valid():
+            user_form.save()
+            if request.POST.get('clear_signature') == 'true':
+                profile.signature = ''
+            else:
+                signature = request.POST.get('signature')
+                if signature:
+                    profile.signature = signature
+            profile.save()
+            return redirect('view_profile')
+
+    return render(request, 'profile/edit_profile.html', {'user_form': user_form, 'profile_form': profile_form, 'profile': profile})
+
 
 @login_required
 def change_password(request):
@@ -492,8 +508,11 @@ def view_timesheet(request, user_id):
 import logging
 logger = logging.getLogger(__name__)
 
+
+
+
 @login_required
-def download_timesheet_image(request, user_id):
+def download_timesheet_pdf(request, user_id):
     if not request.user.is_admin:
         return redirect('worker_shift_list')
     
@@ -501,7 +520,6 @@ def download_timesheet_image(request, user_id):
     location_name = request.GET.get('location')
     
     if not location_name:
-        logger.error("Location not specified")
         return HttpResponse("Location not specified", status=400)
     
     today = timezone.now().date()
@@ -511,96 +529,10 @@ def download_timesheet_image(request, user_id):
     shifts = Shift.objects.filter(worker=user, location__name=location_name, date__range=[last_monday, last_sunday], is_completed=True, signature__isnull=False)
     
     if not shifts.exists():
-        logger.error("No shifts found for the specified location and date range")
         return HttpResponse("No shifts found for the specified location and date range", status=404)
     
-    # Create an image with higher resolution
-    width, height = 1600, 1400
-    image = Image.new('RGB', (width, height), 'white')
-    draw = ImageDraw.Draw(image)
-    font = ImageFont.truetype("arial.ttf", 24)  # Use a truetype font for better quality
-    header_font = ImageFont.truetype("arial.ttf", 48)  # Larger font for the header
-    
-    # Load the logo
-    logo_path = os.path.join(settings.BASE_DIR, 'static', 'img', 'bblogo.png')
-    try:
-        logo = Image.open(logo_path)
-    except FileNotFoundError:
-        logger.error(f"Logo file not found at {logo_path}")
-        return HttpResponse("Logo file not found", status=404)
-    
-    logo.thumbnail((200, 200))
-    image.paste(logo, (20, 60))  # Lower the logo
-    
-    # Draw the header
-    draw.text((240, 60), "Temporary Agency Worker – Time Sheet", font=header_font, fill='darkblue')
-    draw.text((240, 140), f"Worker: {user.first_name} {user.last_name}", font=font, fill='black')
-    draw.text((240, 180), f"Week: {last_monday.strftime('%Y-%m-%d')} to {last_sunday.strftime('%Y-%m-%d')}", font=font, fill='black')
-    
-    # Add more spacing between the header and the column headers
-    y = 280
-    headers = ["Date", "Start Time", "End Time", "Hours Done", "Sleep In", "Signature", "Signed By"]
-    x_positions = [20, 220, 420, 620, 820, 1020, 1220]
-    for i, header in enumerate(headers):
-        draw.text((x_positions[i], y), header, font=font, fill='black')
-    
-    # Add more spacing between the column headers and the first entry
-    y += 60
-    total_hours = 0
-    total_sleep_in = 0
-    row_height = 100  # Increase the row height for better spacing
-    for shift in shifts:
-        hours_done = (datetime.combine(date.min, shift.end_time) - datetime.combine(date.min, shift.start_time)).seconds / 3600
-        total_hours += hours_done
-        total_sleep_in += 1 if shift.sleep_in else 0
-        
-        draw.text((20, y), shift.date.strftime('%Y-%m-%d'), font=font, fill='black')
-        draw.text((220, y), shift.start_time.strftime('%H:%M'), font=font, fill='black')
-        draw.text((420, y), shift.end_time.strftime('%H:%M'), font=font, fill='black')
-        draw.text((620, y), f"{hours_done:.2f}", font=font, fill='black')
-        draw.text((820, y), "Yes" if shift.sleep_in else "No", font=font, fill='black')
-        
-        if shift.signature:
-            try:
-                # Decode the base64 signature
-                signature_data = shift.signature.split(',')[1]
-                signature_image = Image.open(BytesIO(base64.b64decode(signature_data)))
-                signature_image = signature_image.convert("RGBA")  # Ensure the image has an alpha channel
-                
-                # Create a white background image
-                white_bg = Image.new("RGB", signature_image.size, "white")
-                white_bg.paste(signature_image, (0, 0), signature_image)
-                signature_image = white_bg
-                
-                signature_image.thumbnail((200, 80))  # Adjust the thumbnail size to fit within the row
-                
-                # Paste the signature image onto the main image
-                image.paste(signature_image, (1020, y))
-            except Exception as e:
-                logger.error(f"Error processing signature for shift {shift.id}: {e}")
-        
-        # Handle case where shift.signed_by might be None
-        signed_by = shift.signed_by if shift.signed_by else "N/A"
-        draw.text((1220, y), signed_by, font=font, fill='black')
-        
-        y += row_height  # Adjust the spacing for the next shift
-    
-    # Add more spacing between the last entry and the totals
-    y += 60
-    draw.text((20, y), "Total", font=font, fill='black')
-    draw.text((620, y), f"{total_hours:.2f}", font=font, fill='black')
-    draw.text((820, y), f"{total_sleep_in}", font=font, fill='black')
-    
-    # Save the image to a BytesIO object
-    image_io = BytesIO()
-    image.save(image_io, format='PNG')
-    image_io.seek(0)
-    
-    # Create the response
-    response = HttpResponse(image_io, content_type='image/png')
-    response['Content-Disposition'] = f'attachment; filename=timesheet_{user.first_name}_{user.last_name}_{location_name}_{last_monday.strftime("%Y-%m-%d")}_to_{last_sunday.strftime("%Y-%m-%d")}.png'
-    
-    return response
+    return generate_timesheet_pdf(user, location_name, shifts, last_monday, last_sunday)
+
 
 @login_required
 def download_timesheet_excel(request, user_id):
@@ -622,158 +554,4 @@ def download_timesheet_excel(request, user_id):
     if not shifts.exists():
         return HttpResponse("No shifts found for the specified location and date range", status=404)
     
-    wb = Workbook()
-    ws = wb.active
-    ws.title = "Time Sheet"
-    
-    # Add the header
-    ws.merge_cells('A1:G1')
-    ws['A1'] = "Temporary Agency Worker – Time Sheet"
-    ws['A1'].font = Font(size=24, bold=True, color="0000FF")
-    
-    ws['A2'] = f"Worker: {user.first_name} {user.last_name}"
-    ws['A3'] = f"Week: {last_monday.strftime('%Y-%m-%d')} to {last_sunday.strftime('%Y-%m-%d')}"
-    
-    # Add the table headers
-    headers = ["Date", "Start Time", "End Time", "Hours Done", "Sleep In", "Signature", "Signed By"]
-    ws.append(headers)
-    
-    total_hours = 0
-    total_sleep_in = 0
-    for shift in shifts:
-        hours_done = (datetime.combine(date.min, shift.end_time) - datetime.combine(date.min, shift.start_time)).seconds / 3600
-        total_hours += hours_done
-        total_sleep_in += 1 if shift.sleep_in else 0
-        
-        row = [
-            shift.date.strftime('%Y-%m-%d'),
-            shift.start_time.strftime('%H:%M'),
-            shift.end_time.strftime('%H:%M'),
-            f"{hours_done:.2f}",
-            "Yes" if shift.sleep_in else "No",
-            "Signature",  # Placeholder for signature
-            shift.signed_by if shift.signed_by else "N/A"
-        ]
-        ws.append(row)
-    
-    # Add the totals row
-    ws.append(["Total", "", "", f"{total_hours:.2f}", f"{total_sleep_in}", "", ""])
-    
-    response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
-    response['Content-Disposition'] = f'attachment; filename=timesheet_{user.first_name}_{user.last_name}_{location_name}_{last_monday.strftime("%Y-%m-%d")}_to_{last_sunday.strftime("%Y-%m-%d")}.xlsx'
-    wb.save(response)
-    
-    return response
-
-@login_required
-@login_required
-def download_timesheet_pdf(request, user_id):
-    if not request.user.is_admin:
-        return redirect('worker_shift_list')
-    
-    user = get_object_or_404(User, id=user_id)
-    location_name = request.GET.get('location')
-    
-    if not location_name:
-        return HttpResponse("Location not specified", status=400)
-    
-    today = timezone.now().date()
-    last_monday = today - timedelta(days=today.weekday() + 7)
-    last_sunday = last_monday + timedelta(days=6)
-    
-    shifts = Shift.objects.filter(worker=user, location__name=location_name, date__range=[last_monday, last_sunday], is_completed=True, signature__isnull=False)
-    
-    if not shifts.exists():
-        return HttpResponse("No shifts found for the specified location and date range", status=404)
-    
-    response = HttpResponse(content_type='application/pdf')
-    response['Content-Disposition'] = f'attachment; filename=timesheet_{user.first_name}_{user.last_name}_{location_name}_{last_monday.strftime("%Y-%m-%d")}_to_{last_sunday.strftime("%Y-%m-%d")}.pdf'
-    
-    p = canvas.Canvas(response, pagesize=letter)
-    width, height = letter
-    
-    # Offset everything lower on the page
-    y_offset = 100
-    
-    # Draw the logo
-    logo_path = os.path.join(settings.BASE_DIR, 'static', 'img', 'bblogo.png')
-    try:
-        logo = Image.open(logo_path)
-        logo_width, logo_height = logo.size
-        aspect_ratio = logo_width / logo_height
-        logo_width = (width - 40) * 0.8  # Scale down the logo width by 20%
-        logo_height = logo_width / aspect_ratio
-        p.drawImage(logo_path, 20, height - logo_height - 20, width=logo_width, height=logo_height)
-    except FileNotFoundError:
-        logger.error(f"Logo file not found at {logo_path}")
-        return HttpResponse("Logo file not found", status=404)
-    
-    # Draw the header
-    p.setFont("Helvetica-Bold", 24)
-    p.setFillColorRGB(0, 0, 0.5)  # Dark blue color
-    p.drawString(50, height - logo_height - 50 - y_offset, "Temporary Agency Worker – Time Sheet")
-    p.setFont("Helvetica", 12)
-    p.setFillColorRGB(0, 0, 0)  # Black color
-    p.drawString(50, height - logo_height - 80 - y_offset, f"Worker: {user.first_name} {user.last_name}")
-    p.drawString(50, height - logo_height - 100 - y_offset, f"Week: {last_monday.strftime('%Y-%m-%d')} to {last_sunday.strftime('%Y-%m-%d')}")
-    
-    # Add more spacing between the header and the column headers
-    y = height - logo_height - 150 - y_offset
-    headers = ["Date", "Start Time", "End Time", "Hours Done", "Sleep In", "Signature", "Signed By"]
-    x_positions = [50, 120, 190, 260, 330, 400, 470]
-    for i, header in enumerate(headers):
-        p.drawString(x_positions[i], y, header)
-    
-    # Add more spacing between the column headers and the first entry
-    y -= 40
-    total_hours = 0
-    total_sleep_in = 0
-    row_height = 40  # Increase the row height for better spacing
-    for shift in shifts:
-        hours_done = (datetime.combine(date.min, shift.end_time) - datetime.combine(date.min, shift.start_time)).seconds / 3600
-        total_hours += hours_done
-        total_sleep_in += 1 if shift.sleep_in else 0
-        
-        p.drawString(50, y, shift.date.strftime('%Y-%m-%d'))
-        p.drawString(120, y, shift.start_time.strftime('%H:%M'))
-        p.drawString(190, y, shift.end_time.strftime('%H:%M'))
-        p.drawString(260, y, f"{hours_done:.2f}")
-        p.drawString(330, y, "Yes" if shift.sleep_in else "No")
-        
-        if shift.signature:
-            try:
-                # Decode the base64 signature
-                signature_data = shift.signature.split(',')[1]
-                signature_image = Image.open(BytesIO(base64.b64decode(signature_data)))
-                signature_image = signature_image.convert("RGBA")  # Ensure the image has an alpha channel
-                
-                # Create a white background image
-                white_bg = Image.new("RGB", signature_image.size, "white")
-                white_bg.paste(signature_image, (0, 0), signature_image)
-                
-                # Increase the resolution of the signature image
-                signature_image.thumbnail((50, 20))  # Adjust the thumbnail size to fit within the row
-                
-                # Create a temporary file for the signature image
-                with tempfile.NamedTemporaryFile(delete=False, suffix=".png") as tmp_file:
-                    white_bg.save(tmp_file.name)
-                    p.drawImage(tmp_file.name, 400, y - 10, width=50, height=20)
-            except Exception as e:
-                logger.error(f"Error processing signature for shift {shift.id}: {e}")
-        
-        signed_by = shift.signed_by if shift.signed_by else "N/A"
-        p.drawString(470, y, signed_by)
-        
-        y -= row_height  # Adjust the spacing for the next shift
-    
-    # Add more spacing between the last entry and the totals
-    y -= 40
-    p.drawString(50, y, "Total")
-    p.drawString(260, y, f"{total_hours:.2f}")
-    p.drawString(330, y, f"{total_sleep_in}")
-    
-    p.showPage()
-    p.save()
-    
-    return response
-
+    return generate_timesheet_excel(user, location_name, shifts, last_monday, last_sunday)

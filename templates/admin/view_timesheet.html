@@ -22,7 +22,7 @@
             <h3 class="mb-0">Select Location to View and Download Timesheet</h3>
           </div>
           <div class="card-body">
-            <form method="get" action="{% url 'download_timesheet_image' user.id %}">
+            <form method="get">
               <div class="form-group">
                 <label for="location">Location</label>
                 <select id="location" name="location" class="form-control" onchange="updateShiftsTable()">
@@ -32,11 +32,10 @@
                   {% endfor %}
                 </select>
               </div>
-              <button type="submit" class="btn btn-primary">Download Timesheet as Image</button>
             </form>
             <div class="download-buttons mt-3">
-              <a href="#" id="download-excel" class="btn btn-success">Download Timesheet as Excel</a>
-              <a href="#" id="download-pdf" class="btn btn-danger">Download Timesheet as PDF</a>
+              <a href="#" id="download-excel" class="btn bg-gradient-success">Download Timesheet as Excel</a>
+              <a href="#" id="download-pdf" class="btn bg-gradient-danger">Download Timesheet as PDF</a>
             </div>
           </div>
         </div>

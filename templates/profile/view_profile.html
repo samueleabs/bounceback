@@ -1,3 +1,4 @@
+<!-- filepath: /c:/Users/samue/Desktop/projects/bounceback/templates/profile/view_profile.html -->
 {% extends "base_generic.html" %}
 
 {% block title %}View Profile{% endblock %}
@@ -43,6 +44,16 @@
                 <tr>
                   <th scope="row">Email</th>
                   <td>{{ user.email }}</td>
+                </tr>
+                <tr>
+                  <th scope="row">Signature</th>
+                  <td>
+                    {% if profile.signature %}
+                      <img src="{{ profile.signature }}" alt="Signature" style="border: 1px solid #808080; border-radius: 10px;">
+                    {% else %}
+                      No signature saved.
+                    {% endif %}
+                  </td>
                 </tr>
               </tbody>
             </table>

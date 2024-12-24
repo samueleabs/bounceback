@@ -21,8 +21,8 @@
           <div class="card-header border-0">
             <h3 class="mb-0">Timesheets Due</h3>
           </div>
-          <div class="table-responsive">
-            <table class="table align-items-center table-flush">
+          <div class="table-responsive" style="padding: 10px;">
+            <table class="table align-items-center table-flush table-bordered" id="timesheets-table">
               <thead class="thead-light">
                 <tr>
                   <th scope="col">First Name</th>
@@ -39,9 +39,9 @@
                     <td>{{ item.user.email }}</td>
                     <td>
                       {% if item.timesheet_generated %}
-                        <a href="{% url 'view_timesheet' item.user.id %}" class="btn btn-sm btn-primary">View Timesheet</a>
+                        <a href="{% url 'view_timesheet' item.user.id %}" class="btn btn-sm bg-gradient-primary">View Timesheet</a>
                       {% else %}
-                        <a href="{% url 'generate_timesheet' item.user.id %}" class="btn btn-sm btn-warning">Generate Timesheet</a>
+                        <a href="{% url 'generate_timesheet' item.user.id %}" class="btn btn-sm bg-gradient-warning">Generate Timesheet</a>
                       {% endif %}
                     </td>
                   </tr>
@@ -53,4 +53,49 @@
       </div>
     </div>
   </div>
+
+  <!-- Include jQuery -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <!-- Include DataTables CSS and JS -->
+  <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.3/css/jquery.dataTables.css">
+  <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.11.3/js/jquery.dataTables.js"></script>
+
+  <!-- Custom CSS for styling DataTables elements -->
+  <style>
+    .dataTables_wrapper .dataTables_filter input {
+      border: 1px solid #141414;
+      border-radius: 4px;
+      padding: 5px;
+      margin-left: 0.5em;
+    }
+    .dataTables_wrapper .dataTables_paginate .paginate_button {
+      padding: 0.5em 1em;
+      margin-left: 0.5em;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      background-color: #f8f9fa;
+      color: #333;
+    }
+    .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+      background-color: #e2e6ea;
+      color: #333;
+    }
+    .dataTables_wrapper .dataTables_paginate .paginate_button.current {
+      background-color: #007bff;
+      color: black !important;
+      border: 1px solid #007bff;
+    }
+  </style>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      // Initialize DataTables
+      $('#timesheets-table').DataTable({
+        "paging": true,
+        "searching": true,
+        "ordering": true,
+        "info": true
+      });
+    });
+  </script>
 {% endblock %}

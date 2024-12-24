@@ -8,6 +8,10 @@ class User(AbstractUser):
 
 class WorkerProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
+    signature = models.TextField(null=True, blank=True)
+
+    def __str__(self):
+        return f"{self.user.username}'s Profile"
     # Additional fields for worker profile
 
 class Location(models.Model):
