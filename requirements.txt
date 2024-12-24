@@ -22,6 +22,7 @@ pyphen==0.17.0
 reportlab==4.2.5
 sqlparse==0.5.2
 tinycss2==1.4.0
+gunicorn==20.1.0
 tinyhtml5==2.0.0
 typing_extensions==4.12.2
 tzdata==2024.2
