@@ -5,5 +5,11 @@ class ContentSecurityPolicyMiddleware:
 
     def __call__(self, request):
         response = self.get_response(request)
-        response['Content-Security-Policy'] = "script-src 'self' 'unsafe-eval';"
+        response['Content-Security-Policy'] = (
+            "default-src 'self'; "
+            "script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; "
+            "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; "
+            "img-src 'self' data:; "
+            "font-src 'self' https://cdn.jsdelivr.net; "
+        )
         return response
