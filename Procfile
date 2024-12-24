@@ -1,1 +1,1 @@
-web: gunicorn bounceback.wsgi
+web: gunicorn scheduler.wsgi
