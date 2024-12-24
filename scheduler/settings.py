@@ -78,12 +78,12 @@ WSGI_APPLICATION = 'scheduler.wsgi.application'
 # Database settings
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
+        'ENGINE': 'django.db.backends.mysql',
         'NAME': env('DATABASE_NAME'),
         'USER': env('DATABASE_USER'),
         'PASSWORD': env('DATABASE_PASSWORD'),
         'HOST': env('DATABASE_HOST'),
-        'PORT': env('DATABASE_PORT'),
+        'PORT': env('DATABASE_PORT', default='3306'),
     }
 }
 
@@ -118,6 +118,8 @@ USE_I18N = True
 
 USE_TZ = True
 
+# Allow all host headers
+ALLOWED_HOSTS = ['*']
 
 
 
@@ -140,6 +142,8 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = [
     BASE_DIR / "static",
 ]
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
 CRISPY_TEMPLATE_PACK = "bootstrap5"
