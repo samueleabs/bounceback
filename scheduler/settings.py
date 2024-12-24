@@ -2,6 +2,7 @@ from pathlib import Path
 import os
 from django.urls import reverse_lazy
 import environ
+import dj_database_url
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -16,7 +17,7 @@ environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-vtkw3ys$a7=@9jnh=#_^ay=zlk1ghdi(#y&!=h4y1gh*txf^yo'
+SECRET_KEY = env('SECRET_KEY', default='django-insecure-vtkw3ys$a7=@9jnh=#_^ay=zlk1ghdi(#y&!=h4y1gh*txf^yo')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
