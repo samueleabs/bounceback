@@ -1,9 +1,13 @@
-# filepath: /C:/Users/samue/Desktop/projects/bounceback/shifts/csp_middleware.py
+import logging
+
+logger = logging.getLogger(__name__)
+
 class ContentSecurityPolicyMiddleware:
     def __init__(self, get_response):
         self.get_response = get_response
 
     def __call__(self, request):
+        logger.debug("ContentSecurityPolicyMiddleware called")
         response = self.get_response(request)
         response['Content-Security-Policy'] = (
             "default-src 'self'; "
