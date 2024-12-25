@@ -40,8 +40,8 @@
                   <tr>
                     <td>{{ user.username }}</td>
                     <td>{{ user.email }}</td>
-                    <td>{{ first_name }}</td>
-                    <td>{{ last_name }}</td>
+                    <td>{{ user.first_name }}</td>
+                    <td>{{ user.last_name }}</td>
                     <td>
                       <a href="{% url 'edit_user' user.id %}" class="btn btn-sm bg-gradient-warning">Edit</a>
                       <a href="{% url 'delete_user' user.id %}" class="btn btn-sm btn-danger">Delete</a>
