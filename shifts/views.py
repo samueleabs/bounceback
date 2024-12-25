@@ -50,6 +50,12 @@ def user_login(request):
                     return redirect('admin_dashboard')
                 elif user.is_worker:
                     return redirect('worker_shift_list')
+                else:
+                    return redirect('landing_page')  # Redirect to a default page if user type is not recognized
+            else:
+                messages.error(request, 'Invalid username or password')
+        else:
+            messages.error(request, 'Invalid username or password')
     else:
         form = AuthenticationForm()
     return render(request, 'login.html', {'form': form})
