@@ -30,7 +30,8 @@
                 <tr>
                   <th scope="col">Username</th>
                   <th scope="col">Email</th>
-                  <th scope="col">Role</th>
+                  <th scope="col">First Name</th>
+                  <th scope="col">Last Name</th>
                   <th scope="col">Actions</th>
                 </tr>
               </thead>
@@ -39,7 +40,8 @@
                   <tr>
                     <td>{{ user.username }}</td>
                     <td>{{ user.email }}</td>
-                    <td>{{ user.get_role_display }}</td>
+                    <td>{{ first_name }}</td>
+                    <td>{{ last_name }}</td>
                     <td>
                       <a href="{% url 'edit_user' user.id %}" class="btn btn-sm bg-gradient-warning">Edit</a>
                       <a href="{% url 'delete_user' user.id %}" class="btn btn-sm btn-danger">Delete</a>
