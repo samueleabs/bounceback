@@ -9,7 +9,7 @@
       <div class="header-body">
         <div class="row align-items-center">
           <div class="col-lg-6 col-7">
-            <h6 class="h2 text-white d-inline-block mb-0">Edit Profile</h6>
+            <h6 class="h2 text-white d-inline-block mb-0"><i class="fa-solid fa-address-card"></i> Edit Profile</h6>
           </div>
         </div>
       </div>
@@ -38,12 +38,36 @@
               </div>
               <button type="submit" class="btn btn-primary" onclick="saveSignature()">Save changes</button>
               <button type="button" class="btn btn-secondary" onclick="clearSignature()">Clear Signature</button>
+              <button type="button" class="btn bg-gradient-danger" onclick="showDisclaimer()">Disclaimer</button>
             </form>
           </div>
         </div>
       </div>
     </div>
   </div>
+
+
+  <div class="modal fade" id="disclaimerModal" tabindex="-1" role="dialog" aria-labelledby="disclaimerModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="disclaimerModalLabel">Disclaimer</h5>
+        </div>
+        <div class="modal-body">
+          I declare that the information I have given on this application and forms are correct and complete
+          and that I have not claimed elsewhere for the hours/shifts on this application. I
+          understand that if I knowingly provide false information this may result in
+          disciplinary action and I may be liable to prosecution and civil recovery
+          proceedings. I consent to this disclosure of information from this application and form to and
+          by any Bounce Back Healthcare Solutions authorized body for the purpose of verification of this claim and the investigation, detection and prosecution of fraud.
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn bg-gradient-primary" onclick="dismissDisclaimer()">OK</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
 {% endblock %}
 
 {% block extra_js %}
@@ -65,6 +89,14 @@
                 document.getElementById('signature').value = existingSignature.src;
             }
         }
+    }
+
+    function showDisclaimer() {
+        $('#disclaimerModal').modal('show');
+    }
+
+    function dismissDisclaimer() {
+        $('#disclaimerModal').modal('hide');
     }
 
     function clearSignature() {

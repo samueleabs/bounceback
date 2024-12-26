@@ -89,7 +89,7 @@
                 {% endif %}
                 <li class="nav-item">
                     <a class="nav-link" href="{% url 'view_profile' %}">
-                        <i class="fas fa-user text-primary"></i><span class="ms-2">Profile</span>
+                        <i class="fa-solid fa-address-card text-primary"></i><span class="ms-2">Profile</span>
                     </a>
                 </li>
                 <li class="nav-item">
@@ -142,7 +142,7 @@
                         <a class="nav-link pr-0" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
                             <div class="media align-items-center">
                                 <div class="media-body ml-2 d-none d-lg-block">
-                                    <span class="mb-0 text-lg text-white font-weight-bold">Welcome, {{ request.user.username }}</span>
+                                    <span class="mb-0 text-lg text-white font-weight-bold">Welcome, {{ user.first_name }} {{ user.last_name }}</span>
                                 </div>
                             </div>
                         </a>

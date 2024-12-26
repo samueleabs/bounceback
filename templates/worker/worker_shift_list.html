@@ -8,7 +8,7 @@
       <div class="header-body">
         <div class="row align-items-center">
           <div class="col-lg-6 col-7">
-            <h6 class="h2 text-white d-inline-block mb-0">My Shifts</h6>
+            <h6 class="h2 text-white d-inline-block mb-0"><i class="fas fa-list"></i> My Shifts</h6>
           </div>
         </div>
       </div>
@@ -19,7 +19,7 @@
       <div class="col">
         <div class="card mb-4">
           <div class="card-header border-0">
-            <span class="mb-0 text-lg text-black font-weight-bold">Welcome, {{ request.user.username }}</span>
+            <span class="mb-0 text-lg text-black font-weight-bold">Welcome, {{ user.first_name }} {{ user.last_name }}</span>
             <h3 class="mb-0">Today's Shifts</h3>
           </div>
           <div class="card-body">
