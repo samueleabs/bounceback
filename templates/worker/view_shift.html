@@ -68,9 +68,6 @@
             {% endif %}
           </div>
           <div class="card-footer py-4">
-            {% if not shift.is_completed %}
-              <a href="{% url 'sign_off_shift' shift.id %}" class="btn bg-gradient-warning">Sign Shift</a>
-            {% endif %}
             <a href="{% url 'worker_shift_list' %}" class="btn bg-gradient-secondary">Back to Shifts</a>
           </div>
         </div>
