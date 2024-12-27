@@ -56,8 +56,6 @@
     </div>
   </div>
 
-
-
   <!-- Custom CSS for styling DataTables elements -->
   <style>
     .dataTables_wrapper .dataTables_filter input {
@@ -87,9 +85,11 @@
 
   <script>
     document.addEventListener('DOMContentLoaded', function () {
-      // Initialize DataTables
+      // Initialize DataTables with pagination controls
       $('#users-table').DataTable({
         "paging": true,
+        "pageLength": 10,  // Number of entries to show per page
+        "lengthMenu": [5, 10, 25, 50, 75, 100],  // Options for number of entries per page
         "searching": true,
         "ordering": true,
         "info": true
