@@ -257,12 +257,8 @@ def manage_shifts(request):
     
     shifts_list = shifts_list.order_by(sort_by)
     
-    paginator = Paginator(shifts_list, 10)  # Show 10 shifts per page
-    page = request.GET.get('page')
-    shifts = paginator.get_page(page)
-    
     context = {
-        'shifts': shifts,
+        'shifts': shifts_list,
         'search_query': search_query,
         'sort_by': sort_by,
         'order': order,
@@ -322,10 +318,7 @@ def manage_users(request):
     if not request.user.is_admin:
         return redirect('worker_shift_list')
     
-    users_list = User.objects.all()
-    paginator = Paginator(users_list, 10)  # Show 10 users per page
-    page = request.GET.get('page')
-    users = paginator.get_page(page)
+    users = User.objects.all()  # Get all users without pagination
     
     context = {
         'users': users,

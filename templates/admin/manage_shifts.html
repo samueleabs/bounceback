@@ -18,6 +18,16 @@
     </div>
   </div>
   <div class="container-fluid mt-4">
+    <div class="row mb-3">
+      <div class="col-md-4">
+        <label for="min-date">Start Date:</label>
+        <input type="date" id="min-date" class="form-control">
+      </div>
+      <div class="col-md-4">
+        <label for="max-date">End Date:</label>
+        <input type="date" id="max-date" class="form-control">
+      </div>
+    </div>
     <div class="row">
       <div class="col">
         <div class="card">
@@ -36,6 +46,16 @@
                   <th scope="col">Worker</th>
                   <th scope="col">Sleep In</th>
                   <th scope="col">Actions</th>
+                </tr>
+                <tr>
+                  <th><input type="text" id="date-search" placeholder="Search Date" class="form-control form-control-sm"></th>
+                  <th><input type="text" id="start-time-search" placeholder="Search Start Time" class="form-control form-control-sm"></th>
+                  <th><input type="text" id="end-time-search" placeholder="Search End Time" class="form-control form-control-sm"></th>
+                  <th><input type="text" id="location-search" placeholder="Search Location" class="form-control form-control-sm"></th>
+                  <th><input type="text" id="completed-search" placeholder="Search Completed" class="form-control form-control-sm"></th>
+                  <th><input type="text" id="worker-search" placeholder="Search Worker" class="form-control form-control-sm"></th>
+                  <th><input type="text" id="sleep-in-search" placeholder="Search Sleep In" class="form-control form-control-sm"></th>
+                  <th></th>
                 </tr>
               </thead>
               <tbody id="shifts-tbody">
@@ -75,8 +95,6 @@
     </div>
   </div>
 
- 
-
   <!-- Custom CSS for styling DataTables elements -->
   <style>
     .dataTables_wrapper .dataTables_filter input {
@@ -102,16 +120,60 @@
       color: black !important;
       border: 1px solid #007bff;
     }
+    .form-control-sm {
+      height: calc(1.5em + 0.5rem + 2px);
+      padding: 0.25rem 0.5rem;
+      font-size: 0.875rem;
+      line-height: 1.5;
+      border-radius: 0.2rem;
+    }
   </style>
 
   <script>
     document.addEventListener('DOMContentLoaded', function () {
-      // Initialize DataTables
-      $('#shifts-table').DataTable({
+      // Initialize DataTables with column search boxes
+      var table = $('#shifts-table').DataTable({
         "paging": true,
+        "pageLength": 10,  // Number of entries to show per page
+        "lengthMenu": [5, 10, 25, 50, 75, 100],  // Options for number of entries per page
         "searching": true,
         "ordering": true,
         "info": true
+      });
+
+      // Apply the search
+      $('#shifts-table thead tr:eq(1) th').each(function (i) {
+        $('input', this).on('keyup change', function () {
+          if (table.column(i).search() !== this.value) {
+            table
+              .column(i)
+              .search(this.value)
+              .draw();
+          }
+        });
+      });
+
+      // Date range filter
+      $.fn.dataTable.ext.search.push(
+        function (settings, data, dataIndex) {
+          var min = $('#min-date').val();
+          var max = $('#max-date').val();
+          var date = new Date(data[0]); // Use data for the date column
+
+          if (
+            (min === '' && max === '') ||
+            (min === '' && date <= new Date(max)) ||
+            (new Date(min) <= date && max === '') ||
+            (new Date(min) <= date && date <= new Date(max))
+          ) {
+            return true;
+          }
+          return false;
+        }
+      );
+
+      $('#min-date, #max-date').change(function () {
+        table.draw();
       });
     });
   </script>

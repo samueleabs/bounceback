@@ -29,8 +29,10 @@
               </div>
               <div class="col-md-6 col-sm-12">
                 <h4>Location</h4>
-                <p>{{ shift.location.name }}</p>
+                <p>{{ shift.location.name }} <i class="fa-solid fa-circle-info" onclick="showDisclaimer()"></i></p>
+                
               </div>
+              
             </div>
             <div class="row">
               <div class="col-md-6 col-sm-12">
@@ -75,4 +77,39 @@
       </div>
     </div>
   </div>
+
+  <!-- Disclaimer Modal -->
+  <div class="modal fade" id="disclaimerModal" tabindex="-1" role="dialog" aria-labelledby="disclaimerModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="disclaimerModalLabel">{{shift.location.name}}</h5>
+        </div>
+        <div class="modal-body">
+          {{shift.location.address}} <br>
+          {{shift.location.postcode}}
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn bg-gradient-primary" onclick="dismissDisclaimer()">OK</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+{% endblock %}
+
+{% block extra_js %}
+  <!-- Include jQuery -->
+  <script>
+
+    function showDisclaimer() {
+        $('#disclaimerModal').modal('show');
+    }
+
+    function dismissDisclaimer() {
+        $('#disclaimerModal').modal('hide');
+    }
+
+    
+  </script>
 {% endblock %}

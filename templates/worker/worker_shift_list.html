@@ -77,9 +77,6 @@
                         <td>{{ shift.is_completed|yesno:"Yes,No" }}</td>
                         <td>
                           <a href="{% url 'view_shift' shift.id %}" class="btn bg-gradient-info btn-sm">View</a>
-                          {% if not shift.is_completed %}
-                            <a href="{% url 'sign_off_shift' shift.id %}" class="btn bg-gradient-success btn-sm">Sign</a>
-                          {% endif %}
                         </td>
                       </tr>
                     {% endfor %}
