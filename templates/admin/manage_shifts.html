@@ -20,11 +20,11 @@
   <div class="container-fluid mt-4">
     <div class="row mb-3">
       <div class="col-md-4">
-        <label for="min-date">Start Date:</label>
+        <label for="min-date" style="color: white; font-weight: bold;">Start Date:</label>
         <input type="date" id="min-date" class="form-control">
       </div>
       <div class="col-md-4">
-        <label for="max-date">End Date:</label>
+        <label for="max-date" style="color: white; font-weight: bold;">End Date:</label>
         <input type="date" id="max-date" class="form-control">
       </div>
     </div>
@@ -61,9 +61,9 @@
               <tbody id="shifts-tbody">
                 {% for shift in shifts %}
                   <tr>
-                    <td>{{ shift.date }}</td>
-                    <td>{{ shift.start_time }}</td>
-                    <td>{{ shift.end_time }}</td>
+                    <td>{{ shift.date|date:"j M Y" }}</td>
+                    <td>{{ shift.start_time|time:"H:i" }}</td>
+                    <td>{{ shift.end_time|time:"H:i" }}</td>
                     <td>{{ shift.location.name }}</td>
                     <td>
                       {% if shift.is_completed %}
