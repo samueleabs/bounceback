@@ -60,6 +60,8 @@ class CustomUserCreationForm(UserCreationForm):
             'last_name': forms.TextInput(attrs={'class': 'form-control'}),
             'password1': forms.PasswordInput(attrs={'class': 'form-control'}),
             'password2': forms.PasswordInput(attrs={'class': 'form-control'}),
+            'is_admin': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'is_worker': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
         }
 
 class CustomUserChangeForm(UserChangeForm):
