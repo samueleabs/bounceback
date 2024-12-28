@@ -173,6 +173,40 @@
           }
           Scrollbar.init(document.querySelector('#sidenav-scrollbar'), options);
         }
+
+        // Close sidenav when clicking outside
+        document.addEventListener('click', function(event) {
+            var sidenav = document.getElementById('sidenav-main');
+            var iconSidenav = document.getElementById('iconNavbarSidenav');
+            var targetElement = event.target; // clicked element
+
+            do {
+                if (targetElement == sidenav || targetElement == iconSidenav) {
+                    // This is a click inside. Do nothing, just return.
+                    return;
+                }
+                // Go up the DOM
+                targetElement = targetElement.parentNode;
+            } while (targetElement);
+
+            // This is a click outside.
+            if (sidenav.classList.contains('g-sidenav-pinned')) {
+                sidenav.classList.remove('g-sidenav-pinned');
+                sidenav.classList.add('g-sidenav-hidden');
+            }
+        });
+
+        // Toggle sidenav
+        document.getElementById('iconNavbarSidenav').addEventListener('click', function() {
+            var sidenav = document.getElementById('sidenav-main');
+            if (sidenav.classList.contains('g-sidenav-hidden')) {
+                sidenav.classList.remove('g-sidenav-hidden');
+                sidenav.classList.add('g-sidenav-pinned');
+            } else {
+                sidenav.classList.remove('g-sidenav-pinned');
+                sidenav.classList.add('g-sidenav-hidden');
+            }
+        });
       </script>
     <!-- Core -->
     <script src="{% static 'js/core/popper.min.js' %}"></script>
