@@ -24,28 +24,29 @@
           </div>
           <div class="card-body">
             {% if today_shifts %}
-              <div class="row">
-                {% for shift in today_shifts %}
-                  <div class="col-md-4 col-sm-6 mb-4">
-                    <div class="card">
-                      <div class="card-body">
-                        <h5 class="card-title">{{ shift.location.name }}</h5>
-                        <p class="card-text">
-                          <strong>Start Time:</strong> {{ shift.start_time }}<br>
-                          <strong>End Time:</strong> {{ shift.end_time }}<br>
-                          <strong>Completed:</strong> {{ shift.is_completed|yesno:"Yes,No" }}
-                        </p>
-                        <a href="{% url 'view_shift' shift.id %}" class="btn bg-gradient-info btn-sm">View</a>
-                        {% if not shift.is_completed %}
-                          <a href="{% url 'sign_off_shift' shift.id %}" class="btn bg-gradient-warning btn-sm">Sign</a>
-                        {% endif %}
-                      </div>
-                    </div>
-                  </div>
-                {% endfor %}
-              </div>
+                <div class="row">
+                    {% for shift in today_shifts %}
+                        <div class="col-md-4 col-sm-6 mb-4">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h5 class="card-title">{{ shift.location.name }}</h5>
+                                    <p class="card-text">
+                                        <strong>Date:</strong> {{ shift.date }}<br>
+                                        <strong>Start Time:</strong> {{ shift.start_time }}<br>
+                                        <strong>End Time:</strong> {{ shift.end_time }}<br>
+                                        <strong>Completed:</strong> {{ shift.is_completed|yesno:"Yes,No" }}
+                                    </p>
+                                    <a href="{% url 'view_shift' shift.id %}" class="btn bg-gradient-info btn-sm">View</a>
+                                    {% if not shift.is_completed %}
+                                        <a href="{% url 'sign_off_shift' shift.id %}" class="btn bg-gradient-warning btn-sm">Sign</a>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
             {% else %}
-              <p>No shifts today.</p>
+                <p>No shifts today.</p>
             {% endif %}
           </div>
         </div>

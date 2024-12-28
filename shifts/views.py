@@ -11,7 +11,7 @@ from .models import Shift, Availability, Message, User
 from .forms import *
 from django.contrib.auth import views as auth_views
 from datetime import datetime, timedelta, date
-from django.db.models import Count
+from django.db.models import Count, Q
 from django.http import HttpResponse
 import base64
 from io import BytesIO
@@ -80,7 +80,7 @@ def admin_dashboard(request):
     total_shifts = Shift.objects.count()
     total_messages = Message.objects.count()
     recent_shifts = Shift.objects.order_by('-date')[:5]
-    unsigned_shifts = Shift.objects.filter(is_completed=False).order_by('-date')[:5]
+    unsigned_shifts = Shift.objects.filter(is_completed=False, date__lte=date.today()).order_by('-date')[:5]
     
     # Get the selected date from the request
     selected_date_str = request.GET.get('selected_date', '')
@@ -114,15 +114,26 @@ def admin_dashboard(request):
 
 @login_required
 def worker_shift_list(request):
-    today = date.today()
-    today_shifts = Shift.objects.filter(worker=request.user, date=today)
+    today = timezone.now().date()
+    now = timezone.now().time()
+    
+    # Filter shifts that start today or end today
+    today_shifts = Shift.objects.filter(
+        worker=request.user
+    ).filter(
+        Q(date=today) | Q(date=today - timedelta(days=1), end_time__gt=now)
+    ).distinct()
+    
     upcoming_shifts = Shift.objects.filter(worker=request.user, date__gt=today)
     previous_shifts = Shift.objects.filter(worker=request.user, date__lt=today)
+    
     return render(request, 'worker/worker_shift_list.html', {
         'today_shifts': today_shifts,
         'upcoming_shifts': upcoming_shifts,
         'previous_shifts': previous_shifts
     })
+
+
 
 @login_required
 def sign_off_shift(request, shift_id):
