@@ -6,41 +6,54 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/x-icon" href="{% static 'img/site_icon.png' %}">
-    <link rel="icon" type="image/png" sizes="48x48" href="img/site_icon_48x48.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="img/site_icon_16x16.png">
-    <link rel="apple-touch-icon" type="image/png" sizes="167x167" href="img/site_icon_167x167.png">
-    <title>Welcome to Bounceback</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="icon" type="image/png" sizes="48x48" href="{% static 'img/site_icon_48x48.png' %}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{% static 'img/site_icon_16x16.png' %}">
+    <link rel="apple-touch-icon" type="image/png" sizes="167x167" href="{% static 'img/site_icon_167x167.png' %}">
+    <title>{% block title %}Bounceback App{% endblock %}</title>
+    
+    <!-- Icons -->
+    <link href="{% static 'css/nucleo-icons.css' %}" rel="stylesheet" />
+    <link href="{% static 'css/nucleo-svg.css' %}" rel="stylesheet" />
+
+    <!-- Font Awesome Icons -->
+    <script src="{% static 'js/font-awesome/all.min.js' %}" crossorigin="anonymous"></script>
+
+    <!-- CSS Files -->
+    <link id="pagestyle" href="{% static 'css/argon-dashboard.css' %}" rel="stylesheet" />
+    
+    <!-- Bootstrap CSS -->
+    <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet" integrity="sha384-wEmeIV1mKuiNpC+IOBjI7aAzPcEZeedi5yW5f2yOq55WWLwNGmvvx4Um1vskeMj0" crossorigin="anonymous">
+    
+    <!-- DataTables CSS -->
+    <link href="{% static 'css/jquery.dataTables.min.css' %}" rel="stylesheet">
+
+    <!-- Custom CSS -->
     <link href="{% static 'css/custom.css' %}" rel="stylesheet">
+    
+    <!-- Custom Inline CSS for Centering -->
     <style>
-        body, html {
-            height: 100%;
-            margin: 0;
-            font-family: 'Open Sans', sans-serif;
-        }
         .landing-page {
-            background: url('{% static 'img/bb_back.jpg' %}') no-repeat center center fixed;
-            background-size: cover;
-            height: 100%;
-            position: relative;
             display: flex;
             justify-content: center;
             align-items: center;
-            color: #fff;
-            text-align: center;
+            height: 100vh;
+            background: url('{% static 'img/bb_back.jpg' %}') no-repeat center center;
+            background-size: cover;
+            position: relative;
         }
         .overlay {
             position: absolute;
             top: 0;
             left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.6);
-            z-index: 1;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
         }
         .content {
             position: relative;
             z-index: 2;
+            text-align: center;
+            color: white;
             max-width: 600px;
             padding: 20px;
             background: rgba(255, 255, 255, 0.1);
@@ -48,14 +61,12 @@
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
         }
         .inline-logo {
-            width: 410px;
-            height: 100px;
+            max-width: 400px;
             margin-bottom: 20px;
         }
         .btn-custom {
             margin: 10px;
             padding: 10px 20px;
-            border-radius: 50px;
             font-size: 18px;
         }
     </style>
@@ -65,14 +76,20 @@
         <div class="overlay"></div>
         <div class="content">
             <img src="{% static 'img/bblogo.png' %}" class="inline-logo" alt="Logo">
-            <h1>Welcome to Bounceback</h1>
+            <h1 class="text-light">Welcome to Bounceback</h1>
             <p>Your trusted partner in healthcare solutions.</p>
             <div class="d-grid gap-2 d-md-block">
-                <a href="{% url 'user_login' %}" class="btn btn-primary btn-custom">Login</a>
-                <a href="https://bouncebackhealthcaresolution.co.uk/" class="btn btn-secondary btn-custom" target="_blank">Visit Main Website</a>
+                <a href="{% url 'user_login' %}" class="btn btn-sm bg-gradient-primary btn-custom">Login</a>
+                <a href="https://bouncebackhealthcaresolution.co.uk/" class="btn bg-gradient-secondary btn-custom" target="_blank">Visit Main Website</a>
             </div>
         </div>
     </div>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{% static 'js/core/popper.min.js' %}"></script>
+    <script src="{% static 'js/core/bootstrap.min.js' %}"></script>
+    <script src="{% static 'js/jquery-3.6.0.min.js' %}"></script>
+    <!-- Theme JS -->
+    <script src="{% static 'js/argon-dashboard.min.js' %}"></script>
+    <script src="{% static 'js/bootstrap.bundle.min.js' %}" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+    <script src="{% static 'js/argon-dashboard.min.js' %}"></script>
 </body>
 </html>
