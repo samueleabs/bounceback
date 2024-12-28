@@ -12,6 +12,7 @@ urlpatterns = [
     path('worker/set_availability/', set_availability, name='set_availability'),
     path('worker/view_availability/', view_availability, name='view_availability'),
     path('worker/get_availability/', get_availability, name='get_availability'),
+    path('worker/delete_availability/<int:availability_id>/', delete_availability, name='delete_availability'),
     path('dashboard/admin_view_availability/', admin_view_availability, name='admin_view_availability'),
     path('dashboard/get_admin_availability/', get_admin_availability, name='get_admin_availability'),
     path('worker/sign_off_shift/<int:shift_id>/', sign_off_shift, name='sign_off_shift'),

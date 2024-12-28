@@ -37,12 +37,12 @@ class ShiftForm(forms.ModelForm):
         self.fields['is_completed'].choices = [(True, 'Yes'), (False, 'No')]
 
 class AvailabilityForm(forms.ModelForm):
-    date = forms.DateField(widget=forms.TextInput(attrs={'class': 'form-control datepicker'}))
-    is_available = forms.BooleanField(widget=forms.CheckboxInput(attrs={'class': 'form-check-input'}))
+    dates = forms.CharField(widget=forms.TextInput(attrs={'class': 'datepicker'}))
+    is_available = forms.BooleanField(required=False)
 
     class Meta:
         model = Availability
-        fields = ['date', 'is_available']
+        fields = ['dates', 'is_available']
 
 class MessageForm(forms.ModelForm):
     class Meta:

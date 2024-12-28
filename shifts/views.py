@@ -154,18 +154,19 @@ def set_availability(request):
     if request.method == 'POST':
         form = AvailabilityForm(request.POST)
         if form.is_valid():
-            availability = form.save(commit=False)
-            availability.worker = request.user
-            availability.save()
-            return redirect('view_profile')
+            dates = form.cleaned_data['dates'].split(',')
+            is_available = form.cleaned_data['is_available']
+            for date in dates:
+                Availability.objects.create(worker=request.user, date=date.strip(), is_available=is_available)
+            return redirect('view_availability')
     else:
         form = AvailabilityForm()
-    return render(request, 'profile/set_availability.html', {'form': form})
+    return render(request, 'worker/set_availability.html', {'form': form})
 
 @login_required
 def view_availability(request):
-    availability = Availability.objects.filter(worker=request.user)
-    return render(request, 'profile/view_availability.html', {'availability': availability})
+    availability = Availability.objects.filter(worker=request.user).order_by('date')
+    return render(request, 'worker/view_availability.html', {'availability': availability})
 
 @login_required
 def admin_view_availability(request):
@@ -181,6 +182,14 @@ def get_availability(request):
     availability = Availability.objects.filter(worker=request.user)
     data = serialize('json', availability)
     return JsonResponse(data, safe=False)
+
+@login_required
+def delete_availability(request, availability_id):
+    availability = get_object_or_404(Availability, id=availability_id)
+    if request.method == 'POST':
+        availability.delete()
+        return redirect('view_availability')
+    return render(request, 'worker/delete_availability.html', {'availability': availability})
 
 @login_required
 def get_admin_availability(request):
