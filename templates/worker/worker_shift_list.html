@@ -108,10 +108,10 @@
                         <td>{{ shift.date }}</td>
                         <td>{{ shift.location.name }}</td>
                         <td>
-                          <a href="{% url 'view_shift' shift.id %}" class="btn bg-gradient-info btn-sm">View</a>
                           {% if not shift.is_completed %}
                               <a href="{% url 'sign_off_shift' shift.id %}" class="btn bg-gradient-warning btn-sm">Sign</a>
                           {% endif %}
+                          <a href="{% url 'view_shift' shift.id %}" class="btn bg-gradient-info btn-sm">View</a>
                         </td>
                       </tr>
                     {% endfor %}
