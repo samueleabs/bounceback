@@ -61,8 +61,6 @@
                   <thead>
                     <tr>
                       <th>Date</th>
-                      <th>Start Time</th>
-                      <th>End Time</th>
                       <th>Location</th>
                       <th>Actions</th>
                     </tr>
@@ -70,9 +68,9 @@
                   <tbody>
                     {% for shift in upcoming_shifts %}
                       <tr>
-                        <td>{{ shift.date }}</td>
-                        <td>{{ shift.start_time }}</td>
-                        <td>{{ shift.end_time }}</td>
+                        <td>{{ shift.date|date:"j M Y" }}<br>
+                          {{ shift.start_time|time:"H:i" }}-{{ shift.end_time|time:"H:i" }}
+                        </td>
                         <td>{{ shift.location.name }}</td>
                         <td>
                           <a href="{% url 'view_shift' shift.id %}" class="btn bg-gradient-info btn-sm">View</a>
@@ -105,7 +103,9 @@
                   <tbody>
                     {% for shift in previous_shifts %}
                       <tr>
-                        <td>{{ shift.date }}</td>
+                        <td>{{ shift.date|date:"j M Y" }}<br>
+                          {{ shift.start_time|time:"H:i" }}-{{ shift.end_time|time:"H:i" }}
+                        </td>
                         <td>{{ shift.location.name }}</td>
                         <td>
                           {% if not shift.is_completed %}
