@@ -64,7 +64,6 @@
                       <th>Start Time</th>
                       <th>End Time</th>
                       <th>Location</th>
-                      <th>Completed</th>
                       <th>Actions</th>
                     </tr>
                   </thead>
@@ -75,7 +74,6 @@
                         <td>{{ shift.start_time }}</td>
                         <td>{{ shift.end_time }}</td>
                         <td>{{ shift.location.name }}</td>
-                        <td>{{ shift.is_completed|yesno:"Yes,No" }}</td>
                         <td>
                           <a href="{% url 'view_shift' shift.id %}" class="btn bg-gradient-info btn-sm">View</a>
                         </td>
@@ -100,10 +98,7 @@
                   <thead>
                     <tr>
                       <th>Date</th>
-                      <th>Start Time</th>
-                      <th>End Time</th>
                       <th>Location</th>
-                      <th>Completed</th>
                       <th>Actions</th>
                     </tr>
                   </thead>
@@ -111,10 +106,7 @@
                     {% for shift in previous_shifts %}
                       <tr>
                         <td>{{ shift.date }}</td>
-                        <td>{{ shift.start_time }}</td>
-                        <td>{{ shift.end_time }}</td>
                         <td>{{ shift.location.name }}</td>
-                        <td>{{ shift.is_completed|yesno:"Yes,No" }}</td>
                         <td>
                           <a href="{% url 'view_shift' shift.id %}" class="btn bg-gradient-info btn-sm">View</a>
                           {% if not shift.is_completed %}
