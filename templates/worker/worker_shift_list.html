@@ -1,4 +1,7 @@
+
 {% extends "worker/worker_base.html" %}
+
+{% load custom_filters %}
 
 {% block title %}My Shifts{% endblock %}
 
@@ -71,7 +74,7 @@
                         <td>{{ shift.date|date:"j M Y" }}<br>
                           {{ shift.start_time|time:"H:i" }}-{{ shift.end_time|time:"H:i" }}
                         </td>
-                        <td>{{ shift.location.name }}</td>
+                        <td>{{ shift.location.name|break_location|safe }}</td>
                         <td>
                           <a href="{% url 'view_shift' shift.id %}" class="btn bg-gradient-info btn-sm">View</a>
                         </td>
@@ -106,7 +109,7 @@
                         <td>{{ shift.date|date:"j M Y" }}<br>
                           {{ shift.start_time|time:"H:i" }}-{{ shift.end_time|time:"H:i" }}
                         </td>
-                        <td>{{ shift.location.name }}</td>
+                        <td>{{ shift.location.name|break_location|safe }}</td>
                         <td>
                           {% if not shift.is_completed %}
                               <a href="{% url 'sign_off_shift' shift.id %}" class="btn bg-gradient-warning btn-sm">Sign</a>
