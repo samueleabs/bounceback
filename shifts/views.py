@@ -117,11 +117,11 @@ def worker_shift_list(request):
     today = timezone.now().date()
     now = timezone.now().time()
     
-    # Filter shifts that start today or end today
+    # Filter shifts that start today or end today, and are not completed
     today_shifts = Shift.objects.filter(
         worker=request.user
     ).filter(
-        Q(date=today) | Q(date=today - timedelta(days=1), end_time__gt=now)
+        (Q(date=today) | Q(date=today - timedelta(days=1), end_time__gt=now)) & Q(is_completed=False)
     ).distinct()
     
     upcoming_shifts = Shift.objects.filter(worker=request.user, date__gt=today)
