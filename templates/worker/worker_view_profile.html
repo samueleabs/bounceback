@@ -1,0 +1,65 @@
+<!-- filepath: /c:/Users/samue/Desktop/projects/bounceback/templates/profile/view_profile.html -->
+{% extends "worker/worker_base.html" %}
+
+{% block title %}View Profile{% endblock %}
+
+{% block worker_content %}
+  <div class="header bg-primary py-3">
+    <div class="container-fluid">
+      <div class="header-body">
+        <div class="row align-items-center">
+          <div class="col-lg-6 col-7">
+            <h6 class="h2 text-white d-inline-block mb-0"><i class="fa-solid fa-address-card"></i> View Profile</h6>
+          </div>
+          <div class="col-lg-6 col-5 text-right">
+            <a href="{% url 'worker_edit_profile' %}" class="btn btn-sm btn-white">Edit Profile</a>
+            <a href="{% url 'change_password' %}" class="btn btn-sm btn-white">Change Password</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="container-fluid mt-4">
+    <div class="row">
+      <div class="col">
+        <div class="card">
+          <div class="card-header border-0">
+            <h3 class="mb-0">Profile Information</h3>
+          </div>
+          <div class="table-responsive">
+            <table class="table align-items-center table-flush">
+              <tbody>
+                <tr>
+                  <th scope="row">Username</th>
+                  <td>{{ user.username }}</td>
+                </tr>
+                <tr>
+                  <th scope="row">First Name</th>
+                  <td>{{ user.first_name }}</td>
+                </tr>
+                <tr>
+                  <th scope="row">Last Name</th>
+                  <td>{{ user.last_name }}</td>
+                </tr>
+                <tr>
+                  <th scope="row">Email</th>
+                  <td>{{ user.email }}</td>
+                </tr>
+                <tr>
+                  <th scope="row">Signature</th>
+                  <td>
+                    {% if profile.signature %}
+                      <img src="{{ profile.signature }}" alt="Signature" style="border: 1px solid #808080; border-radius: 10px;">
+                    {% else %}
+                      No signature saved.
+                    {% endif %}
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

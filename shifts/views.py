@@ -408,6 +408,11 @@ def view_profile(request):
     return render(request, 'profile/view_profile.html', {'profile': profile})
 
 @login_required
+def worker_view_profile(request):
+    profile, created = WorkerProfile.objects.get_or_create(user=request.user)
+    return render(request, 'worker/worker_view_profile.html', {'profile': profile})
+
+@login_required
 def edit_profile(request):
     if request.user.is_staff:
         user_form = CustomUserChangeForm(instance=request.user)
@@ -436,6 +441,36 @@ def edit_profile(request):
             return redirect('view_profile')
 
     return render(request, 'profile/edit_profile.html', {'user_form': user_form, 'profile_form': profile_form, 'profile': profile})
+
+@login_required
+def worker_edit_profile(request):
+    if request.user.is_staff:
+        user_form = CustomUserChangeForm(instance=request.user)
+    else:
+        user_form = WorkerUserChangeForm(instance=request.user)
+    
+    profile, created = WorkerProfile.objects.get_or_create(user=request.user)
+    profile_form = UserProfileForm(instance=profile)
+
+    if request.method == 'POST':
+        if request.user.is_staff:
+            user_form = CustomUserChangeForm(request.POST, instance=request.user)
+        else:
+            user_form = WorkerUserChangeForm(request.POST, instance=request.user)
+        
+        profile_form = UserProfileForm(request.POST, instance=profile)
+        if user_form.is_valid() and profile_form.is_valid():
+            user_form.save()
+            if request.POST.get('clear_signature') == 'true':
+                profile.signature = ''
+            else:
+                signature = request.POST.get('signature')
+                if signature:
+                    profile.signature = signature
+            profile.save()
+            return redirect('view_profile')
+
+    return render(request, 'worker/worker_edit_profile.html', {'user_form': user_form, 'profile_form': profile_form, 'profile': profile})
 
 
 @login_required

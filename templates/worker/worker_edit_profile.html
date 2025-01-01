@@ -1,0 +1,112 @@
+<!-- filepath: /c:/Users/samue/Desktop/projects/bounceback/templates/profile/edit_profile.html -->
+{% extends "worker/worker_base.html" %}
+
+{% block title %}Edit Profile{% endblock %}
+
+{% block worker_content %}
+  <div class="header bg-primary py-3">
+    <div class="container-fluid">
+      <div class="header-body">
+        <div class="row align-items-center">
+          <div class="col-lg-6 col-7">
+            <h6 class="h2 text-white d-inline-block mb-0"><i class="fa-solid fa-address-card"></i> Edit Profile</h6>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="container-fluid mt-4">
+    <div class="row">
+      <div class="col">
+        <div class="card">
+          <div class="card-header border-0">
+            <h3 class="mb-0">Edit Profile</h3>
+          </div>
+          <div class="card-body">
+            <form method="post">
+              {% csrf_token %}
+              {{ user_form.as_p }}
+              <div class="form-group">
+                <label for="signature">Signature</label>
+                <canvas id="signature-pad" class="signature-pad" width="400" height="200" style="border: 1px solid #808080; border-radius: 10px;"></canvas>
+                <input type="hidden" name="signature" id="signature">
+                <input type="hidden" name="clear_signature" id="clear_signature" value="false">
+                {% if profile.signature %}
+                  <p>Saved Signature:</p>
+                  <img src="{{ profile.signature }}" alt="Saved Signature" style="border: 1px solid #808080; border-radius: 10px;">
+                {% endif %}
+              </div>
+              <button type="submit" class="btn btn-primary" onclick="saveSignature()">Save changes</button>
+              <button type="button" class="btn btn-secondary" onclick="clearSignature()">Clear Signature</button>
+              <button type="button" class="btn bg-gradient-danger" onclick="showDisclaimer()">Disclaimer</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <div class="modal fade" id="disclaimerModal" tabindex="-1" role="dialog" aria-labelledby="disclaimerModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="disclaimerModalLabel">Disclaimer</h5>
+        </div>
+        <div class="modal-body">
+          I declare that all information provided in this application and accompanying forms is 
+          correct and complete. I affirm that I have not claimed payment for these hours/shifts through any other means.
+          I understand that providing false information may lead to disciplinary action, 
+          including termination of employment, as well as potential legal consequences such as prosecution and 
+          civil recovery proceedings. I consent to the disclosure of this information to and by authorized 
+          representatives of Bounce Back Healthcare Solutions for the purposes of verifying this claim, investigating 
+          suspected fraud, and pursuing legal action if necessary.<br> I understand that my signature on timesheets, this 
+          application, and other related documents constitutes a legally binding agreement confirming the accuracy of 
+          the recorded hours worked. These signatures are used to generate payroll, invoices, and other official records,
+          and I understand the legal implications of falsifying this information.
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn bg-gradient-primary" onclick="dismissDisclaimer()">OK</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+{% endblock %}
+
+{% block extra_js %}
+  <!-- Include jQuery -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <!-- Include Signature Pad JS -->
+  <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.0.0/dist/signature_pad.umd.min.js"></script>
+  <script>
+    var canvas = document.getElementById('signature-pad');
+    var signaturePad = new SignaturePad(canvas);
+
+    function saveSignature() {
+        if (!signaturePad.isEmpty()) {
+            var dataUrl = signaturePad.toDataURL();
+            document.getElementById('signature').value = dataUrl;
+        } else {
+            var existingSignature = document.querySelector('img[alt="Saved Signature"]');
+            if (existingSignature) {
+                document.getElementById('signature').value = existingSignature.src;
+            }
+        }
+    }
+
+    function showDisclaimer() {
+        $('#disclaimerModal').modal('show');
+    }
+
+    function dismissDisclaimer() {
+        $('#disclaimerModal').modal('hide');
+    }
+
+    function clearSignature() {
+        signaturePad.clear();
+        document.getElementById('signature').value = '';
+        document.getElementById('clear_signature').value = 'true';
+    }
+  </script>
+{% endblock %}
