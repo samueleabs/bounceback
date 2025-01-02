@@ -30,9 +30,9 @@
                 <div class="row">
                     {% for shift in today_shifts %}
                         <div class="col-md-4 col-sm-6 mb-4">
-                            <div class="card">
+                            <div class="card shadow-lg">
+                              <div class="card-header bg-primary shadow-sm"><h5 class="text-white">{{ shift.location.name }}</h5></div>
                                 <div class="card-body">
-                                    <h5 class="card-title">{{ shift.location.name }}</h5>
                                     <p class="card-text">
                                         <strong>Date:</strong> {{ shift.date }}<br>
                                         <strong>Start Time:</strong> {{ shift.start_time }}<br>
