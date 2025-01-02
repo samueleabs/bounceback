@@ -468,7 +468,7 @@ def worker_edit_profile(request):
                 if signature:
                     profile.signature = signature
             profile.save()
-            return redirect('view_profile')
+            return redirect('worker_view_profile')
 
     return render(request, 'worker/worker_edit_profile.html', {'user_form': user_form, 'profile_form': profile_form, 'profile': profile})
 
@@ -484,6 +484,19 @@ def change_password(request):
     else:
         form = PasswordChangeForm(request.user)
     return render(request, 'profile/change_password.html', {'form': form})
+
+
+@login_required
+def worker_change_password(request):
+    if request.method == 'POST':
+        form = PasswordChangeForm(request.user, request.POST)
+        if form.is_valid():
+            user = form.save()
+            update_session_auth_hash(request, user)  # Important!
+            return redirect('worker_view_profile')
+    else:
+        form = PasswordChangeForm(request.user)
+    return render(request, 'worker/worker_change_password.html', {'form': form})
 
 def admin_reset_password(request, user_id):
     user = get_object_or_404(User, id=user_id)
