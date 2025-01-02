@@ -83,18 +83,24 @@
     <!-- Bottom Navigation Bar -->
     <nav class="navbar fixed-bottom navbar-light bg-white shadow">
         <div class="container d-flex justify-content-between">
-            <a href="{% url 'worker_shift_list' %}" class="nav-link d-flex flex-column align-items-center {% if request.path == '/worker_shift_list/' %}text-primary{% else %}text-secondary{% endif %}">
-                <i class="fas fa-list fa-2x"></i>
-                <span class="d-block text-xs">Shifts</span>
-            </a>
-            <a href="{% url 'view_availability' %}" class="nav-link d-flex flex-column align-items-center {% if request.path == '/view_availability/' %}text-primary{% else %}text-secondary{% endif %}">
-                <i class="fas fa-calendar-alt fa-2x"></i>
-                <span class="d-block text-xs">Availability</span>
-            </a>
-            <a href="{% url 'worker_view_profile' %}" class="nav-link d-flex flex-column align-items-center {% if request.path == '/worker_view_profile/' %}text-primary{% else %}text-secondary{% endif %}">
-                <i class="fas fa-address-card fa-2x"></i>
-                <span class="d-block text-xs">Profile</span>
-            </a>
+            <form action="{% url 'worker_shift_list' %}" method="get" class="nav-link d-flex flex-column align-items-center {% if request.path == '/worker_shift_list/' %}text-primary{% else %}text-secondary{% endif %}">
+                <button type="submit" class="btn btn-link p-0">
+                    <i class="fas fa-list fa-2x"></i>
+                    <span class="d-block text-xs">Shifts</span>
+                </button>
+            </form>
+            <form action="{% url 'view_availability' %}" method="get" class="nav-link d-flex flex-column align-items-center {% if request.path == '/view_availability/' %}text-primary{% else %}text-secondary{% endif %}">
+                <button type="submit" class="btn btn-link p-0">
+                    <i class="fas fa-calendar-alt fa-2x"></i>
+                    <span class="d-block text-xs">Availability</span>
+                </button>
+            </form>
+            <form action="{% url 'worker_view_profile' %}" method="get" class="nav-link d-flex flex-column align-items-center {% if request.path == '/worker_view_profile/' %}text-primary{% else %}text-secondary{% endif %}">
+                <button type="submit" class="btn btn-link p-0">
+                    <i class="fas fa-address-card fa-2x"></i>
+                    <span class="d-block text-xs">Profile</span>
+                </button>
+            </form>
             <form method="post" action="{% url 'worker_logout' %}" class="nav-link d-flex flex-column align-items-center text-secondary">
                 {% csrf_token %}
                 <button type="submit" class="btn btn-link p-0 text-secondary">
