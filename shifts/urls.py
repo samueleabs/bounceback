@@ -17,7 +17,6 @@ urlpatterns = [
     path('dashboard/get_admin_availability/', get_admin_availability, name='get_admin_availability'),
     path('worker/sign_off_shift/<int:shift_id>/', sign_off_shift, name='sign_off_shift'),
     path('worker/view_shift/<int:shift_id>/', view_shift, name='view_shift'),
-    path('worker/send_message/', send_message, name='send_message'),
     path('dashboard/', admin_dashboard, name='admin_dashboard'),
     path('dashboard/manage_shifts/', manage_shifts, name='manage_shifts'),
     path('dashboard/create_shift/', create_shift, name='create_shift'),
@@ -49,5 +48,8 @@ urlpatterns = [
     path('password_reset/done/', auth_views.PasswordResetDoneView.as_view(template_name='registration/password_reset_done.html'), name='password_reset_done'),
     path('reset/<uidb64>/<token>/', CustomPasswordResetConfirmView.as_view(), name='password_reset_confirm'),
     path('reset/done/', CustomPasswordResetCompleteView.as_view(template_name='registration/password_reset_complete.html'), name='password_reset_complete'),
+    path('notifications/', notifications, name='notifications'),
+    path('notifications/clear/', clear_notifications, name='clear_notifications'),
+    path('notifications/mark_as_read/<int:notification_id>/', mark_as_read, name='mark_as_read'),
     path('logout/', WorkerLogoutView.as_view(), name='worker_logout'),
 ]

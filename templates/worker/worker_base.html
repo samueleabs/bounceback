@@ -41,6 +41,19 @@
             display: block;
             font-size: 1.5rem;
         }
+        .badge-notification {
+            background-color: red;
+            color: white;
+            position: absolute;
+            top: 0;
+            right: 1;
+            border-radius: 60%;
+            padding: 2px 5px;
+        }
+        .dropdown-menu-notifications {
+            max-height: 300px;
+            overflow-y: auto;
+        }
     </style>
 
     {% block extra_css %}{% endblock %}
@@ -53,16 +66,32 @@
                 <img src="{% static 'img/bblogo.png' %}" alt="Logo" style="height: 40px;">
             </a>
             <ul class="navbar-nav d-flex flex-row align-items-center">
-                <li class="nav-item">
-                    <a class="nav-link text-white" href="#">
+                <li class="nav-item dropdown position-relative">
+                    <a class="nav-link text-white dropdown-toggle" href="#" id="notificationsDropdown" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                         <i class="fas fa-bell fa-lg"></i>
+                        {% if unread_notifications_count > 0 %}
+                        <span class="badge badge-notification">{{ unread_notifications_count }}</span>
+                        {% endif %}
                     </a>
+                    <div class="dropdown-menu dropdown-menu-end dropdown-menu-notifications" aria-labelledby="notificationsDropdown">
+                        {% for notification in notifications %}
+                        <a class="dropdown-item {% if not notification.read %}font-weight-bold{% endif %}" href="{% url 'mark_as_read' notification.id %}">
+                            {{ notification.content }}
+                            <br>
+                            <small class="text-muted">{{ notification.timestamp }}</small>
+                        </a>
+                        {% empty %}
+                        <span class="dropdown-item text-muted">No notifications</span>
+                        {% endfor %}
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item text-center" href="{% url 'notifications' %}">View all notifications</a>
+                    </div>
                 </li>
                 <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle text-white" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <a class="nav-link dropdown-toggle text-white" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                         <i class="fas fa-user-circle fa-lg"></i>
                     </a>
-                    <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                    <div class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
                         <a class="dropdown-item" href="{% url 'worker_view_profile' %}">Profile</a>
                         <div class="dropdown-divider"></div>
                         <form method="post" action="{% url 'worker_logout' %}">
@@ -126,6 +155,14 @@
     <!-- Chart.js -->
     <script src="{% static 'js/plugins/chartjs.min.js' %}"></script>
     <script src="{% static 'js/argon-dashboard.min.js' %}"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var dropdownElementList = [].slice.call(document.querySelectorAll('.dropdown-toggle'))
+            var dropdownList = dropdownElementList.map(function (dropdownToggleEl) {
+                return new bootstrap.Dropdown(dropdownToggleEl)
+            })
+        });
+    </script>
     {% block extra_js %}{% endblock %}
 </body>
 </html>

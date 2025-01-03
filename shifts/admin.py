@@ -1,6 +1,6 @@
 # shifts/admin.py
 from django.contrib import admin
-from .models import User, WorkerProfile, Location, Shift, Availability, Message
+from .models import User, WorkerProfile, Location, Shift, Availability
 
 class UserAdmin(admin.ModelAdmin):
     list_display = ('username', 'email', 'is_admin', 'is_worker')
@@ -24,13 +24,10 @@ class AvailabilityAdmin(admin.ModelAdmin):
     list_display = ('worker', 'date', 'is_available')
     list_filter = ('date', 'is_available')
 
-class MessageAdmin(admin.ModelAdmin):
-    list_display = ('sender', 'receiver', 'timestamp')
-    search_fields = ('sender__username', 'receiver__username', 'content')
+
 
 admin.site.register(User, UserAdmin)
 admin.site.register(WorkerProfile, WorkerProfileAdmin)
 admin.site.register(Location, LocationAdmin)
 admin.site.register(Shift, ShiftAdmin)
 admin.site.register(Availability, AvailabilityAdmin)
-admin.site.register(Message, MessageAdmin)

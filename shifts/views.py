@@ -7,7 +7,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import AuthenticationForm, SetPasswordForm, PasswordChangeForm
 from django.contrib import messages
 from django.urls import reverse_lazy
-from .models import Shift, Availability, Message, User
+from .models import *
 from .forms import *
 from django.contrib.auth import views as auth_views
 from datetime import datetime, timedelta, date
@@ -78,7 +78,6 @@ def admin_dashboard(request):
     
     total_users = User.objects.count()
     total_shifts = Shift.objects.count()
-    total_messages = Message.objects.count()
     recent_shifts = Shift.objects.order_by('-date')[:5]
     unsigned_shifts = Shift.objects.filter(is_completed=False, date__lte=date.today()).order_by('-date')[:5]
     
@@ -99,7 +98,6 @@ def admin_dashboard(request):
     context = {
         'total_users': total_users,
         'total_shifts': total_shifts,
-        'total_messages': total_messages,
         'recent_shifts': recent_shifts,
         'unsigned_shifts': unsigned_shifts,
         'days_of_week': json.dumps([day.strftime('%A %Y-%m-%d') for day in days_of_week]),
@@ -127,10 +125,15 @@ def worker_shift_list(request):
     upcoming_shifts = Shift.objects.filter(worker=request.user, date__gt=today)
     previous_shifts = Shift.objects.filter(worker=request.user, date__lt=today)
     
+    unread_notifications_count = Notification.objects.filter(user=request.user, read=False).count()
+    recent_notifications = Notification.objects.filter(user=request.user).order_by('-timestamp')[:3]
+    
     return render(request, 'worker/worker_shift_list.html', {
         'today_shifts': today_shifts,
         'upcoming_shifts': upcoming_shifts,
-        'previous_shifts': previous_shifts
+        'previous_shifts': previous_shifts,
+        'unread_notifications_count': unread_notifications_count,
+        'notifications': recent_notifications
     })
 
 
@@ -138,6 +141,8 @@ def worker_shift_list(request):
 @login_required
 def sign_off_shift(request, shift_id):
     shift = get_object_or_404(Shift, id=shift_id)
+    unread_notifications_count = Notification.objects.filter(user=request.user, read=False).count()
+    recent_notifications = Notification.objects.filter(user=request.user).order_by('-timestamp')[:3]
     if request.method == 'POST':
         signature = request.POST.get('signature')
         signed_by = request.POST.get('signed_by')
@@ -147,10 +152,14 @@ def sign_off_shift(request, shift_id):
             shift.signed_by = signed_by
             shift.save()
             return redirect('worker_shift_list')
-    return render(request, 'worker/sign_off_shift.html', {'shift': shift})
+    return render(request, 'worker/sign_off_shift.html', {'shift': shift, 
+        'unread_notifications_count': unread_notifications_count,
+        'notifications': recent_notifications})
 
 @login_required
 def set_availability(request):
+    unread_notifications_count = Notification.objects.filter(user=request.user, read=False).count()
+    recent_notifications = Notification.objects.filter(user=request.user).order_by('-timestamp')[:3]
     if request.method == 'POST':
         form = AvailabilityForm(request.POST)
         if form.is_valid():
@@ -161,12 +170,14 @@ def set_availability(request):
             return redirect('view_availability')
     else:
         form = AvailabilityForm()
-    return render(request, 'worker/set_availability.html', {'form': form})
+    return render(request, 'worker/set_availability.html', {'form': form,'notifications': recent_notifications,'unread_notifications_count': unread_notifications_count,})
 
 @login_required
 def view_availability(request):
     availability = Availability.objects.filter(worker=request.user).order_by('date')
-    return render(request, 'worker/view_availability.html', {'availability': availability})
+    unread_notifications_count = Notification.objects.filter(user=request.user, read=False).count()
+    recent_notifications = Notification.objects.filter(user=request.user).order_by('-timestamp')[:3]
+    return render(request, 'worker/view_availability.html', {'availability': availability,'notifications': recent_notifications,'unread_notifications_count': unread_notifications_count,})
 
 @login_required
 def admin_view_availability(request):
@@ -241,16 +252,25 @@ def delete_location(request, location_id):
     return render(request, 'admin/delete_location.html', {'location': location})
 
 
+
+
 @login_required
-def send_message(request):
-    if request.method == 'POST':
-        form = MessageForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect('worker_shift_list')
-    else:
-        form = MessageForm()
-    return render(request, 'worker/send_message.html', {'form': form})
+def notifications(request):
+    notifications = Notification.objects.filter(user=request.user).order_by('-timestamp')
+    return render(request, 'worker/notifications.html', {'notifications': notifications})
+
+@login_required
+def clear_notifications(request):
+    Notification.objects.filter(user=request.user).delete()
+    return redirect('notifications')
+
+@login_required
+def mark_as_read(request, notification_id):
+    notification = Notification.objects.get(id=notification_id, user=request.user)
+    notification.read = True
+    notification.save()
+    return redirect('notifications')
+
 
 @login_required
 def manage_shifts(request):
@@ -293,7 +313,8 @@ def create_shift(request):
     if request.method == 'POST':
         form = ShiftForm(request.POST)
         if form.is_valid():
-            form.save()
+            shift = form.save() 
+            Notification.objects.create(user=shift.worker, content=f"New shift assigned on {shift.date}")
             return redirect('manage_shifts')
     else:
         form = ShiftForm()
@@ -307,6 +328,7 @@ def edit_shift(request, shift_id):
         form = ShiftForm(request.POST, instance=shift)
         if form.is_valid():
             form.save()
+            Notification.objects.create(user=shift.worker, content=f"Shift on {shift.date} changes made.")
             return redirect('view_shift', shift_id=shift.id)
     else:
         form = ShiftForm(instance=shift)
@@ -319,6 +341,7 @@ def delete_shift(request, shift_id):
         return redirect('worker_shift_list')
     shift = get_object_or_404(Shift, id=shift_id)
     if request.method == 'POST':
+        Notification.objects.create(user=shift.worker, content=f"Shift on {shift.date} has been dropped.")
         shift.delete()
         return redirect('manage_shifts')
     return render(request, 'admin/delete_shift.html', {'shift': shift})
@@ -326,12 +349,14 @@ def delete_shift(request, shift_id):
 @login_required
 def view_shift(request, shift_id):
     shift = get_object_or_404(Shift, id=shift_id)
+    unread_notifications_count = Notification.objects.filter(user=request.user, read=False).count()
+    recent_notifications = Notification.objects.filter(user=request.user).order_by('-timestamp')[:3]
     if request.user.is_admin:
         return render(request, 'admin/view_shift.html', {'shift': shift})
     elif request.user.is_worker and shift.worker == request.user:
-        return render(request, 'worker/view_shift.html', {'shift': shift})
+        return render(request, 'worker/view_shift.html', {'shift': shift,'notifications': recent_notifications,'unread_notifications_count': unread_notifications_count,})
     else:
-        return redirect('worker_shift_list')
+        return redirect('worker_shift_list',)
 
 @login_required
 def manage_users(request):
@@ -410,7 +435,9 @@ def view_profile(request):
 @login_required
 def worker_view_profile(request):
     profile, created = WorkerProfile.objects.get_or_create(user=request.user)
-    return render(request, 'worker/worker_view_profile.html', {'profile': profile})
+    unread_notifications_count = Notification.objects.filter(user=request.user, read=False).count()
+    recent_notifications = Notification.objects.filter(user=request.user).order_by('-timestamp')[:3]
+    return render(request, 'worker/worker_view_profile.html', {'profile': profile,'notifications': recent_notifications,'unread_notifications_count': unread_notifications_count,})
 
 @login_required
 def edit_profile(request):
@@ -451,6 +478,8 @@ def worker_edit_profile(request):
     
     profile, created = WorkerProfile.objects.get_or_create(user=request.user)
     profile_form = UserProfileForm(instance=profile)
+    unread_notifications_count = Notification.objects.filter(user=request.user, read=False).count()
+    recent_notifications = Notification.objects.filter(user=request.user).order_by('-timestamp')[:3]
 
     if request.method == 'POST':
         if request.user.is_staff:
@@ -470,7 +499,9 @@ def worker_edit_profile(request):
             profile.save()
             return redirect('worker_view_profile')
 
-    return render(request, 'worker/worker_edit_profile.html', {'user_form': user_form, 'profile_form': profile_form, 'profile': profile})
+    return render(request, 'worker/worker_edit_profile.html', {'user_form': user_form, 'profile_form': profile_form, 'profile': profile,
+        'unread_notifications_count': unread_notifications_count,
+        'notifications': recent_notifications})
 
 
 @login_required

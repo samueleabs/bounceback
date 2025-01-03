@@ -44,10 +44,6 @@ class AvailabilityForm(forms.ModelForm):
         model = Availability
         fields = ['dates', 'is_available']
 
-class MessageForm(forms.ModelForm):
-    class Meta:
-        model = Message
-        fields = ['receiver', 'content']
 
 class CustomUserCreationForm(UserCreationForm):
     class Meta:
