@@ -34,6 +34,7 @@ class Shift(models.Model):
     is_completed = models.BooleanField(default=False)
     signature = models.TextField(blank=True, null=True)  # Store as data URL or file path
     signed_by = models.CharField(max_length=255, blank=True, null=True)  # Name of the person signing the timesheet
+    reference = models.CharField(max_length=255, blank=True, null=True)  # Reference number for the shift
     timesheet_generated = models.BooleanField(default=False)  # Field to mark timesheet generation
 
     def __str__(self):

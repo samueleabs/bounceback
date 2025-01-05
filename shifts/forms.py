@@ -20,7 +20,7 @@ class ShiftForm(forms.ModelForm):
 
     class Meta:
         model = Shift
-        fields = ['worker', 'location', 'date', 'start_time', 'end_time', 'sleep_in', 'is_completed', 'signature', 'signed_by']
+        fields = ['worker', 'location', 'date', 'start_time', 'end_time', 'sleep_in', 'is_completed', 'signature', 'signed_by','reference']
         widgets = {
             'worker': forms.Select(attrs={'class': 'form-control'}),
             'location': forms.Select(attrs={'class': 'form-control'}),
@@ -28,6 +28,7 @@ class ShiftForm(forms.ModelForm):
             'is_completed': forms.Select(attrs={'class': 'form-control'}),
             'signature': forms.TextInput(attrs={'class': 'form-control', 'readonly': 'readonly'}),
             'signed_by': forms.TextInput(attrs={'class': 'form-control'}),
+            'reference': forms.TextInput(attrs={'class': 'form-control'}),
         }
 
     def __init__(self, *args, **kwargs):

@@ -27,6 +27,10 @@
     <!-- DataTables CSS -->
     <link href="{% static 'css/jquery.dataTables.min.css' %}" rel="stylesheet">
 
+    <!-- MDB CSS -->
+    <link href="{% static 'css/mdb.min.css' %}" rel="stylesheet">
+    <link href="{% static 'css/mdb.rtl.min.css' %}" rel="stylesheet">
+
     <!-- Custom CSS -->
     <link href="{% static 'css/custom.css' %}" rel="stylesheet">
 
@@ -87,11 +91,11 @@
                         <a class="dropdown-item text-center bg-secondary text-white" href="{% url 'notifications' %}"><strong>View all notifications</strong></a>
                     </div>
                 </li>
-                <li class="nav-item dropdown">
+                <li class="nav-item dropdown position-relative"">
                     <a class="nav-link dropdown-toggle text-white" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                         <i class="fas fa-user-circle fa-lg"></i>
                     </a>
-                    <div class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                    <div class="dropdown-menu dropdown-menu-end dropdown-menu-notifications" aria-labelledby="navbarDropdown">
                         <a class="dropdown-item" href="{% url 'worker_view_profile' %}">Profile</a>
                         <div class="dropdown-divider"></div>
                         <form method="post" action="{% url 'worker_logout' %}">
@@ -154,6 +158,8 @@
     <script src="{% static 'js/bootstrap.bundle.min.js' %}" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
     <!-- Chart.js -->
     <script src="{% static 'js/plugins/chartjs.min.js' %}"></script>
+    <script src="{% static 'js/mdb.es.min.js' %}"></script>
+    <script src="{% static 'js/mdb.umd.min.js' %}"></script>
     <script src="{% static 'js/argon-dashboard.min.js' %}"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
