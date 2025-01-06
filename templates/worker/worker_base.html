@@ -174,6 +174,54 @@
             })
         });
     </script>
+
+    <script src="https://www.gstatic.com/firebasejs/11.1.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/11.1.0/firebase-analytics.js"></script>
+
+    <script>
+        // Your web app's Firebase configuration
+        var firebaseConfig = {
+            apiKey: "{{ firebase_config.apiKey }}",
+            authDomain: "{{ firebase_config.authDomain }}",
+            projectId: "{{ firebase_config.projectId }}",
+            storageBucket: "{{ firebase_config.storageBucket }}",
+            messagingSenderId: "{{ firebase_config.messagingSenderId }}",
+            appId: "{{ firebase_config.appId }}",
+            measurementId: "{{ firebase_config.measurementId }}"
+        };
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const messaging = firebase.messaging();
+
+        // Request permission to send notifications
+        messaging.requestPermission()
+        .then(function() {
+            console.log('Notification permission granted.');
+            // Get the token
+            return messaging.getToken();
+        })
+        .then(function(token) {
+            console.log('Token:', token);
+            // Send the token to your server and update the UI if necessary
+        })
+        .catch(function(err) {
+            console.log('Unable to get permission to notify.', err);
+        });
+
+        // Handle incoming messages
+        messaging.onMessage(function(payload) {
+            console.log('Message received. ', payload);
+            // Customize notification here
+            var notificationTitle = payload.notification.title;
+            var notificationOptions = {
+                body: payload.notification.body,
+                icon: payload.notification.icon
+            };
+
+            var notification = new Notification(notificationTitle, notificationOptions);
+        });
+    </script>
+
     {% block extra_js %}{% endblock %}
 </body>
 </html>

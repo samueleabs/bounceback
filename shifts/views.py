@@ -114,6 +114,7 @@ def admin_dashboard(request):
 def worker_shift_list(request):
     today = timezone.now().date()
     now = timezone.now().time()
+
     
     # Filter shifts that start today or end today, and are not completed
     today_shifts = Shift.objects.filter(
@@ -127,14 +128,25 @@ def worker_shift_list(request):
     
     unread_notifications_count = Notification.objects.filter(user=request.user, read=False).count()
     recent_notifications = Notification.objects.filter(user=request.user).order_by('-timestamp')[:3]
-    
-    return render(request, 'worker/worker_shift_list.html', {
+
+    context = {
         'today_shifts': today_shifts,
         'upcoming_shifts': upcoming_shifts,
         'previous_shifts': previous_shifts,
         'unread_notifications_count': unread_notifications_count,
-        'notifications': recent_notifications
-    })
+        'notifications': recent_notifications,
+        'firebase_config': {
+            'apiKey': settings.FIREBASE_API_KEY,
+            'authDomain': settings.FIREBASE_AUTH_DOMAIN,
+            'projectId': settings.FIREBASE_PROJECT_ID,
+            'storageBucket': settings.FIREBASE_STORAGE_BUCKET,
+            'messagingSenderId': settings.FIREBASE_MESSAGING_SENDER_ID,
+            'appId': settings.FIREBASE_APP_ID,
+            'measurementId': settings.FIREBASE_MEASUREMENT_ID,
+        },
+    }
+    
+    return render(request, 'worker/worker_shift_list.html', context)
 
 
 
