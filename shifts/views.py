@@ -1,6 +1,7 @@
 # shifts/views.py
 from django.conf import settings
 import os
+from django.views.decorators.csrf import csrf_exempt
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, authenticate, update_session_auth_hash
 from django.contrib.auth.decorators import login_required
@@ -12,7 +13,7 @@ from .forms import *
 from django.contrib.auth import views as auth_views
 from datetime import datetime, timedelta, date
 from django.db.models import Count, Q
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 import base64
 from io import BytesIO
 from PIL import Image, ImageDraw, ImageFont
@@ -665,3 +666,14 @@ def download_timesheet_excel(request, user_id):
         return HttpResponse("No shifts found for the specified location and date range", status=404)
     
     return generate_timesheet_excel(user, location_name, shifts, last_monday, last_sunday)
+
+
+@csrf_exempt
+def save_token(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        token = data.get('token')
+        if token:
+            UserToken.objects.update_or_create(user=request.user, defaults={'token': token})
+            return JsonResponse({'status': 'success'})
+    return JsonResponse({'status': 'error'}, status=400)

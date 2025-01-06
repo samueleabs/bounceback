@@ -57,3 +57,8 @@ class Notification(models.Model):
 
     def __str__(self):
         return f"Notification for {self.user} at {self.timestamp}"
+
+
+class UserToken(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    token = models.CharField(max_length=255)

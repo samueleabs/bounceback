@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     'shifts',
     'crispy_forms',
     'crispy_bootstrap5',
+    'csp',
 ]
 
 MIDDLEWARE = [
@@ -48,6 +49,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'csp.middleware.CSPMiddleware',
     'shifts.csp_middleware.ContentSecurityPolicyMiddleware',
 ]
 
@@ -183,3 +185,11 @@ FIREBASE_STORAGE_BUCKET = env('FIREBASE_STORAGE_BUCKET')
 FIREBASE_MESSAGING_SENDER_ID = env('FIREBASE_MESSAGING_SENDER_ID')
 FIREBASE_APP_ID = env('FIREBASE_APP_ID')
 FIREBASE_MEASUREMENT_ID = env('FIREBASE_MEASUREMENT_ID')
+
+# Update CSP settings
+CSP_DEFAULT_SRC = ("'self'",)
+CSP_SCRIPT_SRC = ("'self'", "https://cdn.jsdelivr.net", "https://www.gstatic.com")
+CSP_STYLE_SRC = ("'self'", "https://cdn.jsdelivr.net")
+CSP_IMG_SRC = ("'self'", "data:", "https://www.gstatic.com")
+CSP_FONT_SRC = ("'self'", "https://cdn.jsdelivr.net")
+CSP_CONNECT_SRC = ("'self'", "https://www.gstatic.com")
