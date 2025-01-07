@@ -1,5 +1,9 @@
-importScripts("/static/js/firebase-app-compact.js");
-importScripts("/static/js/firebase-messaging-compact.js");
+importScripts(
+	"https://www.gstatic.com/firebasejs/11.1.0/firebase-app-compat.js"
+);
+importScripts(
+	"https://www.gstatic.com/firebasejs/11.1.0/firebase-messaging-compat.js"
+);
 
 self.addEventListener("install", (event) => {
 	event.waitUntil(
