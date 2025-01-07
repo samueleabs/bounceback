@@ -209,7 +209,7 @@
             if (permission === 'granted') {
                 console.log('Notification permission granted.');
                 // Get the token
-                messaging.getToken({ vapidKey: 'YOUR_PUBLIC_VAPID_KEY' }).then((currentToken) => {
+                messaging.getToken({ vapidKey: '{{ firebase_vapid_key }}' }).then((currentToken) => {
                     if (currentToken) {
                         console.log('Token:', currentToken);
                         // Send the token to your server and update the UI if necessary

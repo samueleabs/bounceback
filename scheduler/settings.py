@@ -186,6 +186,9 @@ FIREBASE_MESSAGING_SENDER_ID = env('FIREBASE_MESSAGING_SENDER_ID')
 FIREBASE_APP_ID = env('FIREBASE_APP_ID')
 FIREBASE_MEASUREMENT_ID = env('FIREBASE_MEASUREMENT_ID')
 
+# Firebase VAPID Key
+FIREBASE_VAPID_KEY = os.getenv('FIREBASE_VAPID_KEY')
+
 # Update CSP settings
 CSP_DEFAULT_SRC = ("'self'",)
 CSP_SCRIPT_SRC = ("'self'", "https://cdn.jsdelivr.net", "https://www.gstatic.com")
