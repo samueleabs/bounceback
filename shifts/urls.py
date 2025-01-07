@@ -52,5 +52,6 @@ urlpatterns = [
     path('notifications/clear/', clear_notifications, name='clear_notifications'),
     path('notifications/mark_as_read/<int:notification_id>/', mark_as_read, name='mark_as_read'),
     path('save-token/', save_token, name='save_token'),
+    path('firebase-config/', firebase_config, name='firebase_config'),
     path('logout/', WorkerLogoutView.as_view(), name='worker_logout'),
 ]

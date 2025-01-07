@@ -175,9 +175,9 @@
         });
     </script>
 
-    <script src="https://www.gstatic.com/firebasejs/11.1.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/11.1.0/firebase-analytics.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/11.1.0/firebase-messaging.js"></script>
+    <script src="{% static 'js/firebase-app-compat.js' %}"></script>
+    <script src="{% static 'js/firebase-analytics-compat.js' %}"></script>
+    <script src="{% static 'js/firebase-messaging-compat.js' %}"></script>
 
     <script>
         // Your web app's Firebase configuration
@@ -194,40 +194,56 @@
         firebase.initializeApp(firebaseConfig);
         const messaging = firebase.messaging();
 
-        // Request permission to send notifications
-        messaging.requestPermission()
-        .then(function() {
-            console.log('Notification permission granted.');
-            // Get the token
-            return messaging.getToken();
-        })
-        .then(function(token) {
-            console.log('Token:', token);
-            // Send the token to your server and update the UI if necessary
-            fetch('/save-token/', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': '{{ csrf_token }}'
-                },
-                body: JSON.stringify({ token: token })
+        // Register service worker
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('{% static 'firebase-messaging-sw.js' %}')
+            .then((registration) => {
+                console.log('Service Worker registered with scope:', registration.scope);
+            }).catch((err) => {
+                console.log('Service worker registration failed, error:', err);
             });
-        })
-        .catch(function(err) {
-            console.log('Unable to get permission to notify.', err);
+        }
+
+        // Request permission to send notifications
+        Notification.requestPermission().then((permission) => {
+            if (permission === 'granted') {
+                console.log('Notification permission granted.');
+                // Get the token
+                messaging.getToken({ vapidKey: 'YOUR_PUBLIC_VAPID_KEY' }).then((currentToken) => {
+                    if (currentToken) {
+                        console.log('Token:', currentToken);
+                        // Send the token to your server and update the UI if necessary
+                        fetch('/save-token/', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRFToken': '{{ csrf_token }}'
+                            },
+                            body: JSON.stringify({ token: currentToken })
+                        });
+                    } else {
+                        console.log('No registration token available. Request permission to generate one.');
+                    }
+                }).catch((err) => {
+                    console.log('An error occurred while retrieving token. ', err);
+                });
+            } else {
+                console.log('Unable to get permission to notify.');
+                alert('Please enable notifications in your browser settings to receive updates.');
+            }
         });
 
         // Handle incoming messages
-        messaging.onMessage(function(payload) {
+        messaging.onMessage((payload) => {
             console.log('Message received. ', payload);
             // Customize notification here
-            var notificationTitle = payload.notification.title;
-            var notificationOptions = {
+            const notificationTitle = payload.notification.title;
+            const notificationOptions = {
                 body: payload.notification.body,
                 icon: payload.notification.icon
             };
 
-            var notification = new Notification(notificationTitle, notificationOptions);
+            new Notification(notificationTitle, notificationOptions);
         });
     </script>
 
