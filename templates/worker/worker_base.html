@@ -193,17 +193,18 @@
         // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
         const messaging = firebase.messaging();
-
+    
         // Register service worker
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('{% static 'firebase-messaging-sw.js' %}')
             .then((registration) => {
                 console.log('Service Worker registered with scope:', registration.scope);
+                messaging.useServiceWorker(registration);
             }).catch((err) => {
                 console.log('Service worker registration failed, error:', err);
             });
         }
-
+    
         // Request permission to send notifications
         Notification.requestPermission().then((permission) => {
             if (permission === 'granted') {
@@ -232,7 +233,7 @@
                 alert('Please enable notifications in your browser settings to receive updates.');
             }
         });
-
+    
         // Handle incoming messages
         messaging.onMessage((payload) => {
             console.log('Message received. ', payload);
@@ -242,7 +243,7 @@
                 body: payload.notification.body,
                 icon: payload.notification.icon
             };
-
+    
             new Notification(notificationTitle, notificationOptions);
         });
     </script>

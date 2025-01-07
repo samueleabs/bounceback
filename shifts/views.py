@@ -144,8 +144,8 @@ def worker_shift_list(request):
             'messagingSenderId': settings.FIREBASE_MESSAGING_SENDER_ID,
             'appId': settings.FIREBASE_APP_ID,
             'measurementId': settings.FIREBASE_MEASUREMENT_ID,
-            'firebase_vapid_key': settings.FIREBASE_VAPID_KEY,
         },
+        'firebase_vapid_key': settings.FIREBASE_VAPID_KEY,
     }
     
     return render(request, 'worker/worker_shift_list.html', context)
@@ -691,3 +691,4 @@ def firebase_config(request):
         'firebase_vapid_key': settings.FIREBASE_VAPID_KEY,
     }
     return JsonResponse(config)
+
