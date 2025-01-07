@@ -1,6 +1,8 @@
-importScripts("https://www.gstatic.com/firebasejs/11.1.0/firebase-app.js");
 importScripts(
-	"https://www.gstatic.com/firebasejs/11.1.0/firebase-messaging.js"
+	"https://www.gstatic.com/firebasejs/11.1.0/firebase-app-compact.js"
+);
+importScripts(
+	"https://www.gstatic.com/firebasejs/11.1.0/firebase-messaging-compact.js"
 );
 
 self.addEventListener("install", (event) => {
