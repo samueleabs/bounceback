@@ -38,7 +38,6 @@ INSTALLED_APPS = [
     'crispy_forms',
     'crispy_bootstrap5',
     'csp',
-    'fcm_django',
 ]
 
 MIDDLEWARE = [
@@ -176,19 +175,7 @@ else:
     DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
 
-# Firebase configuration
-FIREBASE_CONFIG = {
-    'apiKey': env('FIREBASE_API_KEY'),
-    'authDomain': env('FIREBASE_AUTH_DOMAIN'),
-    'projectId': env('FIREBASE_PROJECT_ID'),
-    'storageBucket': env('FIREBASE_STORAGE_BUCKET'),
-    'messagingSenderId': env('FIREBASE_MESSAGING_SENDER_ID'),
-    'appId': env('FIREBASE_APP_ID'),
-    'measurementId': env('FIREBASE_MEASUREMENT_ID'),
-}
 
-# Firebase VAPID Key
-FIREBASE_VAPID_KEY = env('FIREBASE_VAPID_KEY')
 
 # Update CSP settings
 CSP_DEFAULT_SRC = ("'self'",)
@@ -198,8 +185,3 @@ CSP_IMG_SRC = ("'self'", "data:", "https://www.gstatic.com")
 CSP_FONT_SRC = ("'self'", "https://cdn.jsdelivr.net")
 CSP_CONNECT_SRC = ("'self'", "https://www.gstatic.com")
 
-FCM_DJANGO_SETTINGS = {
-    "FCM_SERVER_KEY": env('FCM_SERVER_KEY'),  # Replace with your FCM server key
-    "ONE_DEVICE_PER_USER": False,  # Allow multiple devices per user
-    "DELETE_INACTIVE_DEVICES": False,  # Do not delete inactive devices
-}

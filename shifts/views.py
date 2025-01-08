@@ -28,8 +28,7 @@ from openpyxl import Workbook
 from openpyxl.styles import Font
 import tempfile
 from .utils import *
-from fcm_django.models import FCMDevice
-from django.template.loader import render_to_string
+
 
 
 def landing_page(request):
@@ -138,8 +137,6 @@ def worker_shift_list(request):
         'previous_shifts': previous_shifts,
         'unread_notifications_count': unread_notifications_count,
         'notifications': recent_notifications,
-        'firebase_config': settings.FIREBASE_CONFIG,
-        'firebase_vapid_key': settings.FIREBASE_VAPID_KEY,
     }
     
     return render(request, 'worker/worker_shift_list.html', context)
@@ -663,51 +660,7 @@ def download_timesheet_excel(request, user_id):
     return generate_timesheet_excel(user, location_name, shifts, last_monday, last_sunday)
 
 
-@csrf_exempt
-def save_token(request):
-    if request.method == 'POST':
-        data = json.loads(request.body)
-        token = data.get('token')
-        if token:
-            UserToken.objects.update_or_create(user=request.user, defaults={'token': token})
-            return JsonResponse({'status': 'success'})
-    return JsonResponse({'status': 'error'}, status=400)
 
-def service_worker(request):
-    firebase_config = {
-        'apiKey': settings.FIREBASE_CONFIG['apiKey'],
-        'authDomain': settings.FIREBASE_CONFIG['authDomain'],
-        'projectId': settings.FIREBASE_CONFIG['projectId'],
-        'storageBucket': settings.FIREBASE_CONFIG['storageBucket'],
-        'messagingSenderId': settings.FIREBASE_CONFIG['messagingSenderId'],
-        'appId': settings.FIREBASE_CONFIG['appId'],
-        'measurementId': settings.FIREBASE_CONFIG['measurementId'],
-    }
-    response = HttpResponse(render_to_string('firebase-messaging-sw.js', {'firebase_config': firebase_config}), content_type='application/javascript')
-    return response
 
-def worker_base(request):
-    context = {
-        'firebase_config': settings.FIREBASE_CONFIG,
-        'firebase_vapid_key': settings.FIREBASE_VAPID_KEY,
-        # Other context variables...
-    }
-    return render(request, 'worker/worker_base.html', context)
 
-@csrf_exempt
-def send_notification(request):
-    if request.method == 'POST':
-        data = json.loads(request.body)
-        title = data.get('title', 'Default Title')
-        body = data.get('body', 'Default Body')
-        icon = data.get('icon', 'path/to/icon.png')
-        
-        devices = FCMDevice.objects.all()
-        response = devices.send_message(
-            title=title,
-            body=body,
-            icon=icon,
-            data={"key": "value"}
-        )
-        return JsonResponse({"response": response})
-    return JsonResponse({"error": "Invalid request method"}, status=400)
+
