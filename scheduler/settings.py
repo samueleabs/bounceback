@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'crispy_forms',
     'crispy_bootstrap5',
     'csp',
+    'fcm_django',
 ]
 
 MIDDLEWARE = [
@@ -151,9 +152,7 @@ AUTH_USER_MODEL = 'shifts.User'
 
 # Static files (CSS, JavaScript, Images)
 STATIC_URL = '/static/'
-STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, "static"),
-]
+STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
@@ -178,13 +177,15 @@ else:
 
 
 # Firebase configuration
-FIREBASE_API_KEY = env('FIREBASE_API_KEY')
-FIREBASE_AUTH_DOMAIN = env('FIREBASE_AUTH_DOMAIN')
-FIREBASE_PROJECT_ID = env('FIREBASE_PROJECT_ID')
-FIREBASE_STORAGE_BUCKET = env('FIREBASE_STORAGE_BUCKET')
-FIREBASE_MESSAGING_SENDER_ID = env('FIREBASE_MESSAGING_SENDER_ID')
-FIREBASE_APP_ID = env('FIREBASE_APP_ID')
-FIREBASE_MEASUREMENT_ID = env('FIREBASE_MEASUREMENT_ID')
+FIREBASE_CONFIG = {
+    'apiKey': env('FIREBASE_API_KEY'),
+    'authDomain': env('FIREBASE_AUTH_DOMAIN'),
+    'projectId': env('FIREBASE_PROJECT_ID'),
+    'storageBucket': env('FIREBASE_STORAGE_BUCKET'),
+    'messagingSenderId': env('FIREBASE_MESSAGING_SENDER_ID'),
+    'appId': env('FIREBASE_APP_ID'),
+    'measurementId': env('FIREBASE_MEASUREMENT_ID'),
+}
 
 # Firebase VAPID Key
 FIREBASE_VAPID_KEY = env('FIREBASE_VAPID_KEY')
@@ -196,3 +197,9 @@ CSP_STYLE_SRC = ("'self'", "https://cdn.jsdelivr.net")
 CSP_IMG_SRC = ("'self'", "data:", "https://www.gstatic.com")
 CSP_FONT_SRC = ("'self'", "https://cdn.jsdelivr.net")
 CSP_CONNECT_SRC = ("'self'", "https://www.gstatic.com")
+
+FCM_DJANGO_SETTINGS = {
+    "FCM_SERVER_KEY": env('FCM_SERVER_KEY'),  # Replace with your FCM server key
+    "ONE_DEVICE_PER_USER": False,  # Allow multiple devices per user
+    "DELETE_INACTIVE_DEVICES": False,  # Do not delete inactive devices
+}

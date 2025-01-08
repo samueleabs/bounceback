@@ -163,8 +163,6 @@
     <script src="{% static 'js/bootstrap.bundle.min.js' %}" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
     <!-- Chart.js -->
     <script src="{% static 'js/plugins/chartjs.min.js' %}"></script>
-    <script src="{% static 'js/mdb.es.min.js' %}"></script>
-    <script src="{% static 'js/mdb.umd.min.js' %}"></script>
     <script src="{% static 'js/argon-dashboard.min.js' %}"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
@@ -181,7 +179,7 @@
 
     <script>
         // Your web app's Firebase configuration
-        var firebaseConfig = {
+        const firebaseConfig = {
             apiKey: "{{ firebase_config.apiKey }}",
             authDomain: "{{ firebase_config.authDomain }}",
             projectId: "{{ firebase_config.projectId }}",
@@ -190,16 +188,16 @@
             appId: "{{ firebase_config.appId }}",
             measurementId: "{{ firebase_config.measurementId }}"
         };
+    
         // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
         const messaging = firebase.messaging();
     
         // Register service worker
         if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('{% static 'firebase-messaging-sw.js' %}')
+            navigator.serviceWorker.register('/service-worker.js')
             .then((registration) => {
                 console.log('Service Worker registered with scope:', registration.scope);
-                messaging.useServiceWorker(registration);
             }).catch((err) => {
                 console.log('Service worker registration failed, error:', err);
             });
