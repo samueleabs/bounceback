@@ -315,30 +315,57 @@ def manage_shifts(request):
 def create_shift(request):
     if not request.user.is_admin:
         return redirect('worker_shift_list')
+    
+    existing_shifts = None
     if request.method == 'POST':
         form = ShiftForm(request.POST)
         if form.is_valid():
-            shift = form.save() 
-            Notification.objects.create(user=shift.worker, content=f"New shift assigned on {shift.date}")
-            return redirect('manage_shifts')
+            worker = form.cleaned_data['worker']
+            date = form.cleaned_data['date']
+            existing_shifts = Shift.objects.filter(worker=worker, date=date)
+            if existing_shifts.exists():
+                # Show warning modal with existing shift details
+                return render(request, 'admin/create_shift.html', {
+                    'form': form,
+                    'existing_shifts': existing_shifts,
+                    'show_warning': True
+                })
+            else:
+                shift = form.save()
+                Notification.objects.create(user=shift.worker, content=f"New shift assigned on {shift.date}")
+                return redirect('manage_shifts')
     else:
         form = ShiftForm()
-    return render(request, 'admin/create_shift.html', {'form': form})
+    
+    return render(request, 'admin/create_shift.html', {'form': form, 'existing_shifts': existing_shifts, 'show_warning': False})
 
 @login_required
 def edit_shift(request, shift_id):
     shift = get_object_or_404(Shift, id=shift_id)
     
+    existing_shifts = None
     if request.method == 'POST':
         form = ShiftForm(request.POST, instance=shift)
         if form.is_valid():
-            form.save()
-            Notification.objects.create(user=shift.worker, content=f"Shift on {shift.date} changes made.")
-            return redirect('view_shift', shift_id=shift.id)
+            worker = form.cleaned_data['worker']
+            date = form.cleaned_data['date']
+            existing_shifts = Shift.objects.filter(worker=worker, date=date).exclude(id=shift_id)
+            if existing_shifts.exists():
+                # Show warning modal with existing shift details
+                return render(request, 'admin/edit_shift.html', {
+                    'form': form,
+                    'shift': shift,
+                    'existing_shifts': existing_shifts,
+                    'show_warning': True
+                })
+            else:
+                form.save()
+                Notification.objects.create(user=shift.worker, content=f"Shift on {shift.date} changes made.")
+                return redirect('view_shift', shift_id=shift.id)
     else:
         form = ShiftForm(instance=shift)
     
-    return render(request, 'admin/edit_shift.html', {'form': form, 'shift': shift})
+    return render(request, 'admin/edit_shift.html', {'form': form, 'shift': shift, 'existing_shifts': existing_shifts, 'show_warning': False})
 
 @login_required
 def delete_shift(request, shift_id):

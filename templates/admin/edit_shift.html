@@ -9,7 +9,7 @@
       <div class="header-body">
         <div class="row align-items-center">
           <div class="col-lg-6 col-7">
-            <h6 class="h2 text-white d-inline-block mb-0"><i class="fas fa-list"></i> Edit Shift</h6>
+            <h6 class="h2 text-white d-inline-block mb-0"><i class="fas fa-edit"></i> Edit Shift</h6>
           </div>
         </div>
       </div>
@@ -39,15 +39,15 @@
               </div>
               <div class="form-group">
                 <label for="id_date">Date</label>
-                <input type="date" name="date" class="form-control" id="id_date" value="{{ form.date.value }}">
+                <input type="date" name="date" class="form-control" id="id_date" value="{{ form.date.value|date:'Y-m-d' }}">
               </div>
               <div class="form-group">
                 <label for="id_start_time">Start Time</label>
-                <input type="time" name="start_time" class="form-control" id="id_start_time" value="{{ form.start_time.value }}">
+                <input type="time" name="start_time" class="form-control" id="id_start_time" value="{{ form.start_time.value|time:'H:i' }}">
               </div>
               <div class="form-group">
                 <label for="id_end_time">End Time</label>
-                <input type="time" name="end_time" class="form-control" id="id_end_time" value="{{ form.end_time.value }}">
+                <input type="time" name="end_time" class="form-control" id="id_end_time" value="{{ form.end_time.value|time:'H:i' }}">
               </div>
               <div class="form-group form-check">
                 {{ form.sleep_in }}
@@ -68,16 +68,61 @@
                 {{ form.signed_by }}
               </div>
               <button type="submit" class="btn bg-gradient-primary">Save Changes</button>
-              <a href="{% url 'manage_shifts' %}" class="btn bg-gradient-secondary">Cancel</a>
+              <a href="{% url 'view_shift' shift.id %}" class="btn bg-gradient-secondary">Cancel</a>
             </form>
           </div>
         </div>
       </div>
     </div>
   </div>
+
+  <!-- Warning Modal -->
+  {% if show_warning %}
+  <div class="modal fade" tabindex="-1" role="dialog" id="warningModal" style="display: block;">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Warning</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <p>The worker already has a shift on the selected date:</p>
+          <ul>
+            {% for shift in existing_shifts %}
+            <li>{{ shift.date }}: {{ shift.start_time }} - {{ shift.end_time }} at {{ shift.location }}</li>
+            {% endfor %}
+          </ul>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="dismissWarning()">Back</button>
+          <button type="button" class="btn btn-primary" onclick="document.forms[0].submit();">Proceed Anyway</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endif %}
 {% endblock %}
 
 {% block extra_js %}
-  <!-- Include Bootstrap Bundle without integrity attribute -->
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script>
+    $(document).ready(function() {
+        $('.select2').select2();
+    });
+
+    // Show the warning modal if needed
+    {% if show_warning %}
+    $(document).ready(function() {
+        $('#warningModal').modal('show');
+    });
+    {% endif %}
+  </script>
+
+  <script>
+    function dismissWarning() {
+        $('#warningModal').modal('hide');
+    }
+  </script>
 {% endblock %}

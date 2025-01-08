@@ -22,7 +22,7 @@ class ShiftForm(forms.ModelForm):
         model = Shift
         fields = ['worker', 'location', 'date', 'start_time', 'end_time', 'sleep_in', 'is_completed', 'signature', 'signed_by','reference']
         widgets = {
-            'worker': forms.Select(attrs={'class': 'form-control'}),
+            'worker': forms.Select(attrs={'class': 'form-control select2'}),
             'location': forms.Select(attrs={'class': 'form-control'}),
             'sleep_in': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
             'is_completed': forms.Select(attrs={'class': 'form-control'}),
