@@ -5,6 +5,60 @@
 
 {% load custom_filters %}
 
+{% block extra_css %}
+  <style>
+    .nav-tabs .nav-item .nav-link {
+      background-color: #fFFFFF;
+      color: #303030;
+    }
+
+    .nav-tabs .nav-item .nav-link.active {
+      color: #673AB7;
+      border-bottom:2px solid #673AB7;
+    }
+
+    .list-group-item-pill {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-radius: 50px;
+    padding: 10px 20px;
+    margin-bottom: 10px;
+  }
+
+  .date-container {
+      display: flex;
+      align-items: center;
+  }
+
+  .date-day {
+      font-size: 2rem;
+      font-weight: bold;
+  }
+
+  .date-month-year {
+      text-align: left;
+      font-size: 0.8rem;
+      margin-left: 10px;
+  }
+
+  .shift-details {
+      flex-grow: 1;
+      text-align: center;
+  }
+
+  .shift-time {
+      font-size: 1rem;
+      font-weight: bold;
+  }
+
+  .shift-location {
+      font-size: 0.9rem;
+      color: #6c757d;
+  }
+  </style>
+{% endblock %}
+
 {% block title %}My Shifts{% endblock %}
 
 {% block worker_content %}
@@ -33,7 +87,7 @@
                     {% for shift in today_shifts %}
                         <div class="col-md-4 col-sm-6 mb-4">
                             <div class="card shadow-lg">
-                              <div class="card-header bg-primary shadow-sm"><h5 class="text-white">{{ shift.location.name }}</h5></div>
+                              <div class="card-header shadow-sm" style="background-color: #673AB7;"><h5 class="text-white">{{ shift.location.name }}</h5></div>
                                 <div class="card-body">
                                     <p class="card-text">
                                         <strong>Date:</strong> {{ shift.date }}<br>
@@ -100,37 +154,31 @@
             <div class="tab-pane fade show active" id="upcoming0" role="tabpanel" aria-labelledby="home-tab0">
               <div class="card-header border-0">
                 <h3 class="mb-0">Upcoming Shifts</h3>
-              </div>
-              <div class="card-body">
-                {% if upcoming_shifts %}
-                  <div class="table-responsive">
-                    <table id="upcomingShiftsTable" class="table table-striped">
-                      <thead>
-                        <tr>
-                          <th>Date</th>
-                          <th>Location</th>
-                          <th>Actions</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {% for shift in upcoming_shifts %}
-                          <tr>
-                            <td>{{ shift.date|date:"j M Y" }}<br>
-                              {{ shift.start_time|time:"H:i" }}-{{ shift.end_time|time:"H:i" }}
-                            </td>
-                            <td>{{ shift.location.name|break_location|safe }}</td>
-                            <td>
-                              <a href="{% url 'view_shift' shift.id %}" class="btn bg-gradient-primary btn-sm">View</a>
-                            </td>
-                          </tr>
-                        {% endfor %}
-                      </tbody>
-                    </table>
+            </div>
+            <div class="card-body">
+              {% if upcoming_shifts %}
+                  <div class="list-group">
+                      {% for shift in upcoming_shifts %}
+                      <div class="list-group-item d-flex justify-content-between align-items-center list-group-item-pill">
+                          <div class="date-container d-flex align-items-center">
+                              <div class="date-day font-weight-bold" style="font-size:40px;">{{ shift.date|date:"j" }}</div>
+                              <div class="date-month-year ml-2">
+                                  <div>{{ shift.date|date:"M" }}</div>
+                                  <div>{{ shift.date|date:"Y" }}</div>
+                              </div>
+                          </div>
+                          <div class="shift-details text-center">
+                              <div class="shift-location">{{ shift.location.name }}</div>
+                              <div class="shift-time">{{ shift.start_time|time:"H:i" }} - {{ shift.end_time|time:"H:i" }}</div>
+                          </div>
+                          <a href="{% url 'view_shift' shift.id %}" class="btn bg-gradient-primary btn-sm">View</a>
+                      </div>
+                      {% endfor %}
                   </div>
-                {% else %}
+              {% else %}
                   <p>No upcoming shifts.</p>
-                {% endif %}
-              </div>
+              {% endif %}
+          </div>
             </div>
             
 
