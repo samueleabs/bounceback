@@ -10,6 +10,7 @@ urlpatterns = [
     path('login/', user_login, name='user_login'),
     path('worker/shifts/', worker_shift_list, name='worker_shift_list'),
     path('worker/timesheet/', worker_view_timesheet, name='worker_view_timesheet'),
+    path('worker/timesheet/download_pdf/<int:user_id>/', download_timesheet_pdf, name='download_timesheet_pdf'),
     path('worker/set_availability/', set_availability, name='set_availability'),
     path('worker/view_availability/', view_availability, name='view_availability'),
     path('worker/get_availability/', get_availability, name='get_availability'),

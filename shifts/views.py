@@ -682,10 +682,12 @@ logger = logging.getLogger(__name__)
 
 @login_required
 def download_timesheet_pdf(request, user_id):
-    if not request.user.is_admin:
+    user = get_object_or_404(User, id=user_id)
+    
+    # Ensure that workers can only download their own timesheets
+    if not request.user.is_admin and request.user != user:
         return redirect('worker_shift_list')
     
-    user = get_object_or_404(User, id=user_id)
     location_name = request.GET.get('location')
     
     if not location_name:
