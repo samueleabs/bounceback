@@ -142,6 +142,31 @@ def worker_shift_list(request):
     return render(request, 'worker/worker_shift_list.html', context)
 
 
+@login_required
+def worker_view_timesheet(request):
+    user = request.user
+    today = timezone.now().date()
+    last_monday = today - timedelta(days=today.weekday() + 7)
+    last_sunday = last_monday + timedelta(days=6)
+
+    shifts = Shift.objects.filter(worker=user, date__range=[last_monday, last_sunday], is_completed=True, signature__isnull=False)
+
+    # Group shifts by location
+    shifts_by_location = defaultdict(list)
+    for shift in shifts:
+        shifts_by_location[shift.location.name].append({
+            'date': shift.date.strftime('%Y-%m-%d'),
+            'start_time': shift.start_time.strftime('%H:%M'),
+            'end_time': shift.end_time.strftime('%H:%M'),
+            'is_completed': shift.is_completed,
+            'signed_by': shift.signed_by
+        })
+
+    shifts_by_location_json = json.dumps(shifts_by_location, cls=DjangoJSONEncoder)
+
+    return render(request, 'worker/view_timesheet.html', {'user': user, 'locations': shifts_by_location.keys(), 'shifts_by_location_json': shifts_by_location_json})
+
+
 
 @login_required
 def sign_off_shift(request, shift_id):
