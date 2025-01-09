@@ -151,6 +151,9 @@ def worker_view_timesheet(request):
 
     shifts = Shift.objects.filter(worker=user, date__range=[last_monday, last_sunday], is_completed=True, signature__isnull=False)
 
+    unread_notifications_count = Notification.objects.filter(user=request.user, read=False).count()
+    recent_notifications = Notification.objects.filter(user=request.user).order_by('-timestamp')[:3]
+
     # Group shifts by location
     shifts_by_location = defaultdict(list)
     for shift in shifts:
@@ -164,7 +167,15 @@ def worker_view_timesheet(request):
 
     shifts_by_location_json = json.dumps(shifts_by_location, cls=DjangoJSONEncoder)
 
-    return render(request, 'worker/view_timesheet.html', {'user': user, 'locations': shifts_by_location.keys(), 'shifts_by_location_json': shifts_by_location_json})
+    context = {
+        'user': user,
+        'locations': shifts_by_location.keys(),
+        'shifts_by_location_json': shifts_by_location_json,
+        'unread_notifications_count': unread_notifications_count,
+        'notifications': recent_notifications,
+    }
+
+    return render(request, 'worker/view_timesheet.html', context)
 
 
 
@@ -633,6 +644,9 @@ def generate_timesheet(request, user_id):
     for shift in shifts:
         shift.timesheet_generated = True  # Assuming you have a field to mark timesheet generation
         shift.save()
+
+    # Create a notification for the worker
+    Notification.objects.create(user=user, content=f"Timesheet generated for the week of {last_monday.strftime('%Y-%m-%d')} to {last_sunday.strftime('%Y-%m-%d')}")
     
     return redirect('view_timesheet', user_id=user.id)
     
