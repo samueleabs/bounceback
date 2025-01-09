@@ -1,0 +1,61 @@
+.nav-tabs .nav-item .nav-link {
+    background-color: #fFFFFF;
+    color: #303030;
+  }
+
+  .nav-tabs .nav-item .nav-link.active {
+    color: #673AB7;
+    border-bottom:2px solid #673AB7;
+  }
+
+  .list-group-item-pill {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-radius: 20px;
+  padding: 10px 20px;
+  margin-bottom: 10px;
+}
+
+.date-container {
+    display: flex;
+    align-items: center;
+}
+
+.date-day {
+    font-size: 2rem;
+    font-weight: bold;
+}
+
+.date-month-year {
+    text-align: left;
+    font-size: 0.8rem;
+    margin-left: 10px;
+}
+
+.shift-details {
+    flex-grow: 1;
+    text-align: center;
+}
+
+.shift-time {
+    font-size: 1rem;
+    font-weight: bold;
+}
+
+.shift-location {
+    font-size: 0.9rem;
+    color: #6c757d;
+}
+
+.notification-content {
+    flex-grow: 1;
+}
+
+.font-weight-bold {
+    font-weight: bold;
+}
+
+.btn {
+    border-radius: 10px;
+}

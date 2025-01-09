@@ -28,7 +28,7 @@ from openpyxl import Workbook
 from openpyxl.styles import Font
 import tempfile
 from .utils import *
-
+from django.template.loader import render_to_string
 
 
 def landing_page(request):
