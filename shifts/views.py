@@ -783,7 +783,6 @@ def admin_reporting(request):
         'selected_user': selected_user,
         'shifts': shifts,
         'total_hours': total_hours,
-        'hours_done': hours_done,
         'total_pay': total_pay,
         'start_date': start_date_str if request.method == 'POST' else '',
     }
