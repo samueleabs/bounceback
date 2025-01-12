@@ -12,7 +12,7 @@ class WorkerProfileAdmin(admin.ModelAdmin):
     search_fields = ('user__username', 'user__email')
 
 class LocationAdmin(admin.ModelAdmin):
-    list_display = ('name', 'rate')
+    list_display = ('name', 'weekday_rate', 'saturday_rate', 'sunday_rate', 'sleep_in_rate')
     search_fields = ('name',)
 
 class ShiftAdmin(admin.ModelAdmin):

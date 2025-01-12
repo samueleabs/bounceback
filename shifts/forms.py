@@ -99,12 +99,16 @@ class UserProfileForm(forms.ModelForm):
 class LocationForm(forms.ModelForm):
     class Meta:
         model = Location
-        fields = ['name', 'rate', 'address', 'postcode', 'latitude', 'longitude']
+        fields = ['name', 'address', 'postcode', 'latitude', 'longitude', 'weekday_rate', 'saturday_rate', 'sunday_rate', 'sleep_in_rate']
         widgets = {
             'name': forms.TextInput(attrs={'class': 'form-control'}),
-            'rate': forms.NumberInput(attrs={'class': 'form-control'}),
             'address': forms.Textarea(attrs={'class': 'form-control'}),
             'postcode': forms.TextInput(attrs={'class': 'form-control'}),
             'latitude': forms.NumberInput(attrs={'class': 'form-control'}),
             'longitude': forms.NumberInput(attrs={'class': 'form-control'}),
+            'weekday_rate': forms.NumberInput(attrs={'class': 'form-control'}),
+            'saturday_rate': forms.NumberInput(attrs={'class': 'form-control'}),
+            'sunday_rate': forms.NumberInput(attrs={'class': 'form-control'}),
+            'sleep_in_rate': forms.NumberInput(attrs={'class': 'form-control'}),
+
         }

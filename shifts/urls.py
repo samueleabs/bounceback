@@ -40,6 +40,7 @@ urlpatterns = [
     path('dashboard/manage_messages/', manage_messages, name='manage_messages'),
     path('dashboard/manage_timesheets/', manage_timesheets, name='manage_timesheets'),
     path('dashboard/generate_timesheet/<int:user_id>/', generate_timesheet, name='generate_timesheet'),
+    path('dashboard/reporting/', admin_reporting, name='admin_reporting'),
     path('profile/', view_profile, name='view_profile'),
     path('worker/profile', worker_view_profile, name='worker_view_profile'),
     path('profile/edit/', edit_profile, name='edit_profile'),

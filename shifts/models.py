@@ -16,11 +16,14 @@ class WorkerProfile(models.Model):
 
 class Location(models.Model):
     name = models.CharField(max_length=100)
-    rate = models.DecimalField(max_digits=10, decimal_places=2)
     address = models.TextField()
     postcode = models.CharField(max_length=20)
     latitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)
     longitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)
+    weekday_rate = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    saturday_rate = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    sunday_rate = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    sleep_in_rate = models.DecimalField(max_digits=10, decimal_places=2, default=0)
 
     def __str__(self):
         return self.name

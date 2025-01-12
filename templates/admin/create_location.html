@@ -30,10 +30,6 @@
                 {{ form.name }}
               </div>
               <div class="form-group">
-                <label for="id_rate">Rate</label>
-                {{ form.rate }}
-              </div>
-              <div class="form-group">
                 <label for="id_address">Address</label>
                 {{ form.address }}
               </div>
@@ -49,6 +45,22 @@
                 <label for="id_longitude">Longitude</label>
                 {{ form.longitude }}
               </div>
+              <div class="form-group">
+                <label for="id_weekday_rate">Weekday Rate</label>
+                {{ form.weekday_rate }}
+              </div>
+              <div class="form-group">
+                <label for="id_saturday_rate">Saturday Rate</label>
+                {{ form.saturday_rate }}
+              </div>
+              <div class="form-group">
+                <label for="id_sunday_rate">Sunday Rate</label>
+                {{ form.sunday_rate }}
+              </div>
+              <div class="form-group">
+                <label for="id_sleep_in_rate">Sleep_in Rate</label>
+                {{ form.sleep_in_rate }}
+              </div>
               <button type="submit" class="btn bg-gradient-primary">Create Location</button>
               <a href="{% url 'manage_locations' %}" class="btn bg-gradient-secondary">Cancel</a>
             </form>
@@ -60,6 +72,4 @@
 {% endblock %}
 
 {% block extra_js %}
-  <!-- Include Bootstrap Bundle without integrity attribute -->
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
 {% endblock %}

@@ -30,6 +30,7 @@ import tempfile
 from .utils import *
 from django.template.loader import render_to_string
 from django.views.decorators.cache import never_cache
+from decimal import Decimal
 
 
 def landing_page(request):
@@ -732,7 +733,61 @@ def download_timesheet_excel(request, user_id):
     return generate_timesheet_excel(user, location_name, shifts, last_monday, last_sunday)
 
 
+@login_required
+def admin_reporting(request):
+    if not request.user.is_admin:
+        return redirect('worker_shift_list')
 
+    users = User.objects.all()
+    selected_user = None
+    shifts = []
+    total_hours = Decimal(0)
+    total_pay = Decimal(0)
 
+    if request.method == 'POST':
+        user_id = request.POST.get('user')
+        start_date_str = request.POST.get('start_date')
+
+        selected_user = get_object_or_404(User, id=user_id)
+        start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date()
+        end_date = start_date + timedelta(days=6)
+
+        shifts = Shift.objects.filter(worker=selected_user, date__range=[start_date, end_date], is_completed=True)
+
+        for shift in shifts:
+            # Calculate hours done
+            start_time = datetime.combine(date.min, shift.start_time)
+            end_time = datetime.combine(date.min, shift.end_time)
+            hours_done = Decimal((end_time - start_time).seconds) / Decimal(3600)
+            total_hours += hours_done
+
+            location = shift.location
+            # Calculate shift pay based on the day of the week
+            if shift.date.weekday() == 5:  # Saturday
+                shift_pay = hours_done * location.saturday_rate
+            elif shift.date.weekday() == 6:  # Sunday
+                shift_pay = hours_done * location.sunday_rate
+            else:  # Weekday
+                shift_pay = hours_done * location.weekday_rate
+
+            # Add sleep-in rate if applicable
+            if shift.sleep_in:
+                shift_pay += location.sleep_in_rate
+
+            total_pay += shift_pay
+            shift.shift_pay = shift_pay  # Add shift_pay attribute to shift for display in the template
+            shift.hours_done = hours_done  # Add hours_done attribute to shift for display in the template
+
+    context = {
+        'users': users,
+        'selected_user': selected_user,
+        'shifts': shifts,
+        'total_hours': total_hours,
+        'hours_done': hours_done,
+        'total_pay': total_pay,
+        'start_date': start_date_str if request.method == 'POST' else '',
+    }
+
+    return render(request, 'admin/admin_reporting.html', context)
 
 
