@@ -29,6 +29,7 @@ from openpyxl.styles import Font
 import tempfile
 from .utils import *
 from django.template.loader import render_to_string
+from django.views.decorators.cache import never_cache
 
 
 def landing_page(request):
@@ -113,6 +114,7 @@ def admin_dashboard(request):
 
 
 @login_required
+@never_cache
 def worker_shift_list(request):
     today = timezone.now().date()
     now = timezone.now().time()
@@ -126,7 +128,7 @@ def worker_shift_list(request):
     ).distinct()
     
     upcoming_shifts = Shift.objects.filter(worker=request.user, date__gt=today)
-    previous_shifts = Shift.objects.filter(worker=request.user, date__lt=today)
+    previous_shifts = Shift.objects.filter(worker=request.user, date__lt=today, is_completed=True)
     
     unread_notifications_count = Notification.objects.filter(user=request.user, read=False).count()
     recent_notifications = Notification.objects.filter(user=request.user).order_by('-timestamp')[:3]
@@ -192,6 +194,8 @@ def sign_off_shift(request, shift_id):
             shift.is_completed = True
             shift.signed_by = signed_by
             shift.save()
+            # Force database refresh
+            shift.refresh_from_db()
             return redirect('worker_shift_list')
     return render(request, 'worker/sign_off_shift.html', {'shift': shift, 
         'unread_notifications_count': unread_notifications_count,

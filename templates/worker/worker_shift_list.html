@@ -152,8 +152,8 @@
                       <tbody>
                         {% for shift in previous_shifts %}
                           <tr>
-                            <td>{{ shift.date|date:"j M Y" }}<br>
-                              {{ shift.start_time|time:"H:i" }}-{{ shift.end_time|time:"H:i" }}
+                            <td>{{ shift.date|date:"Y-M-d" }}<br>
+                              <strong>{{ shift.start_time|time:"H:i" }}-{{ shift.end_time|time:"H:i" }}</strong>
                             </td>
                             <td>{{ shift.location.name|break_location|safe }}</td>
                             <td>
@@ -189,9 +189,20 @@
 
 <script>
   $(document).ready(function() {
-    $('#previousShiftsTable').DataTable({
-      "order": [[0, "desc"]]
-    });
+      $('#previousShiftsTable').DataTable({
+          "order": [[0, "desc"]],
+          "columnDefs": [
+              {
+                  "targets": 0,
+                  "render": function (data, type, row) {
+                      if (type === 'sort' || type === 'type') {
+                          return data.split('<br>')[0];
+                      }
+                      return data;
+                  }
+              }
+          ]
+      });
   });
 </script>
 
