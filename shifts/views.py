@@ -24,6 +24,7 @@ from django.utils import timezone
 import json
 from django.core.serializers.json import DjangoJSONEncoder
 from collections import defaultdict
+import openpyxl
 from openpyxl import Workbook
 from openpyxl.styles import Font
 import tempfile
@@ -120,28 +121,35 @@ def worker_shift_list(request):
     today = timezone.now().date()
     now = timezone.now().time()
 
-    
     # Filter shifts that start today or end today, and are not completed
     today_shifts = Shift.objects.filter(
         worker=request.user
     ).filter(
         (Q(date=today) | Q(date=today - timedelta(days=1), end_time__gt=now)) & Q(is_completed=False)
     ).distinct()
-    
+
+    # Filter unsigned shifts that are past their end time
+    unsigned_shifts = Shift.objects.filter(
+        worker=request.user,
+        date__lt=today,
+        is_completed=False
+    ).distinct()
+
     upcoming_shifts = Shift.objects.filter(worker=request.user, date__gt=today)
     previous_shifts = Shift.objects.filter(worker=request.user, date__lt=today, is_completed=True)
-    
+
     unread_notifications_count = Notification.objects.filter(user=request.user, read=False).count()
     recent_notifications = Notification.objects.filter(user=request.user).order_by('-timestamp')[:3]
 
     context = {
         'today_shifts': today_shifts,
+        'unsigned_shifts': unsigned_shifts,
         'upcoming_shifts': upcoming_shifts,
         'previous_shifts': previous_shifts,
         'unread_notifications_count': unread_notifications_count,
         'notifications': recent_notifications,
     }
-    
+
     return render(request, 'worker/worker_shift_list.html', context)
 
 
@@ -327,7 +335,7 @@ def manage_shifts(request):
     sort_by = request.GET.get('sort_by', 'date')
     order = request.GET.get('order', 'asc')
     
-    shifts_list = Shift.objects.all()
+    shifts_list = Shift.objects.select_related('worker', 'location').all()
     
     if search_query:
         shifts_list = shifts_list.filter(
@@ -739,27 +747,87 @@ def admin_reporting(request):
         return redirect('worker_shift_list')
 
     users = User.objects.all()
-    selected_user = None
+    selected_users = []
     shifts = []
     total_hours = Decimal(0)
     total_pay = Decimal(0)
 
     if request.method == 'POST':
-        user_id = request.POST.get('user')
+        user_ids = request.POST.getlist('users')
         start_date_str = request.POST.get('start_date')
 
-        selected_user = get_object_or_404(User, id=user_id)
+        selected_users = User.objects.filter(id__in=user_ids)
         start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date()
         end_date = start_date + timedelta(days=6)
 
-        shifts = Shift.objects.filter(worker=selected_user, date__range=[start_date, end_date], is_completed=True)
+        for user in selected_users:
+            user_shifts = Shift.objects.filter(worker=user, date__range=[start_date, end_date], is_completed=True)
+            for shift in user_shifts:
+                # Calculate hours done
+                start_time = datetime.combine(date.min, shift.start_time)
+                end_time = datetime.combine(date.min, shift.end_time)
+                hours_done = Decimal((end_time - start_time).seconds) / Decimal(3600)
+                total_hours += hours_done
 
-        for shift in shifts:
+                location = shift.location
+                # Calculate shift pay based on the day of the week
+                if shift.date.weekday() == 5:  # Saturday
+                    shift_pay = hours_done * location.saturday_rate
+                elif shift.date.weekday() == 6:  # Sunday
+                    shift_pay = hours_done * location.sunday_rate
+                else:  # Weekday
+                    shift_pay = hours_done * location.weekday_rate
+
+                # Add sleep-in rate if applicable
+                if shift.sleep_in:
+                    shift_pay += location.sleep_in_rate
+
+                total_pay += shift_pay
+                shift.shift_pay = shift_pay  # Add shift_pay attribute to shift for display in the template
+                shift.hours_done = hours_done  # Add hours_done attribute to shift for display in the template
+                shift.rate = location.weekday_rate if shift.date.weekday() < 5 else (location.saturday_rate if shift.date.weekday() == 5 else location.sunday_rate)
+                shifts.append(shift)
+
+    context = {
+        'users': users,
+        'selected_users': [user.id for user in selected_users],
+        'shifts': shifts,
+        'total_hours': total_hours,
+        'total_pay': total_pay,
+        'start_date': start_date_str if request.method == 'POST' else '',
+    }
+
+    return render(request, 'admin/admin_reporting.html', context)
+
+
+@login_required
+def export_report_to_excel(request):
+    if not request.user.is_admin:
+        return redirect('worker_shift_list')
+
+    user_ids_str = request.GET.get('users')
+    start_date_str = request.GET.get('start_date')
+
+    user_ids = [int(id) for id in user_ids_str.split(',')]
+    selected_users = User.objects.filter(id__in=user_ids)
+    start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date()
+    end_date = start_date + timedelta(days=6)
+
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = "Shifts Report"
+
+    # Write header
+    headers = ["User", "Date", "Start Time", "End Time", "Location", "Hours Done", "Rate", "Sleep In", "Amount Paid"]
+    ws.append(headers)
+
+    for user in selected_users:
+        user_shifts = Shift.objects.filter(worker=user, date__range=[start_date, end_date], is_completed=True)
+        for shift in user_shifts:
             # Calculate hours done
             start_time = datetime.combine(date.min, shift.start_time)
             end_time = datetime.combine(date.min, shift.end_time)
             hours_done = Decimal((end_time - start_time).seconds) / Decimal(3600)
-            total_hours += hours_done
 
             location = shift.location
             # Calculate shift pay based on the day of the week
@@ -774,19 +842,21 @@ def admin_reporting(request):
             if shift.sleep_in:
                 shift_pay += location.sleep_in_rate
 
-            total_pay += shift_pay
-            shift.shift_pay = shift_pay  # Add shift_pay attribute to shift for display in the template
-            shift.hours_done = hours_done  # Add hours_done attribute to shift for display in the template
+            rate = location.weekday_rate if shift.date.weekday() < 5 else (location.saturday_rate if shift.date.weekday() == 5 else location.sunday_rate)
+            row = [
+                f"{user.first_name} {user.last_name}",
+                shift.date.strftime("%Y-%m-%d"),
+                shift.start_time.strftime("%H:%M"),
+                shift.end_time.strftime("%H:%M"),
+                shift.location.name,
+                float(hours_done),
+                float(rate),
+                "Yes" if shift.sleep_in else "No",
+                float(shift_pay)
+            ]
+            ws.append(row)
 
-    context = {
-        'users': users,
-        'selected_user': selected_user,
-        'shifts': shifts,
-        'total_hours': total_hours,
-        'total_pay': total_pay,
-        'start_date': start_date_str if request.method == 'POST' else '',
-    }
-
-    return render(request, 'admin/admin_reporting.html', context)
-
-
+    response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = 'attachment; filename=shifts_report.xlsx'
+    wb.save(response)
+    return response
