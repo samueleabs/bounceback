@@ -32,6 +32,7 @@ from .utils import *
 from django.template.loader import render_to_string
 from django.views.decorators.cache import never_cache
 from decimal import Decimal
+from .decorators import admin_required
 
 
 def landing_page(request):
@@ -76,7 +77,9 @@ class CustomPasswordResetCompleteView(auth_views.PasswordResetCompleteView):
     def get(self, request, *args, **kwargs):
         messages.success(request, 'Your password has been reset successfully. You can now log in with your new password.')
         return super().get(request, *args, **kwargs)
+
 @login_required
+@admin_required
 def admin_dashboard(request):
     if not request.user.is_admin:
         return redirect('worker_shift_list')
@@ -234,6 +237,7 @@ def view_availability(request):
     return render(request, 'worker/view_availability.html', {'availability': availability,'notifications': recent_notifications,'unread_notifications_count': unread_notifications_count,})
 
 @login_required
+@admin_required
 def admin_view_availability(request):
     date = request.GET.get('date')
     if date:
@@ -257,6 +261,7 @@ def delete_availability(request, availability_id):
     return render(request, 'worker/delete_availability.html', {'availability': availability})
 
 @login_required
+@admin_required
 def get_admin_availability(request):
     try:
         date = request.GET.get('date')
@@ -272,11 +277,14 @@ def get_admin_availability(request):
 
 
 
-
+@login_required
+@admin_required
 def manage_locations(request):
     locations = Location.objects.all()
     return render(request, 'admin/manage_locations.html', {'locations': locations})
 
+@login_required
+@admin_required
 def create_location(request):
     if request.method == 'POST':
         form = LocationForm(request.POST)
@@ -287,6 +295,8 @@ def create_location(request):
         form = LocationForm()
     return render(request, 'admin/create_location.html', {'form': form})
 
+@login_required
+@admin_required
 def edit_location(request, location_id):
     location = get_object_or_404(Location, id=location_id)
     if request.method == 'POST':
@@ -298,6 +308,8 @@ def edit_location(request, location_id):
         form = LocationForm(instance=location)
     return render(request, 'admin/edit_location.html', {'form': form, 'location': location})
 
+@login_required
+@admin_required
 def delete_location(request, location_id):
     location = get_object_or_404(Location, id=location_id)
     if request.method == 'POST':
@@ -327,6 +339,7 @@ def mark_as_read(request, notification_id):
 
 
 @login_required
+@admin_required
 def manage_shifts(request):
     if not request.user.is_admin:
         return redirect('worker_shift_list')
@@ -361,6 +374,7 @@ def manage_shifts(request):
     return render(request, 'admin/manage_shifts.html', context)
 
 @login_required
+@admin_required
 def create_shift(request):
     if not request.user.is_admin:
         return redirect('worker_shift_list')
@@ -389,6 +403,7 @@ def create_shift(request):
     return render(request, 'admin/create_shift.html', {'form': form, 'existing_shifts': existing_shifts, 'show_warning': False})
 
 @login_required
+@admin_required
 def edit_shift(request, shift_id):
     shift = get_object_or_404(Shift, id=shift_id)
     
@@ -417,6 +432,7 @@ def edit_shift(request, shift_id):
     return render(request, 'admin/edit_shift.html', {'form': form, 'shift': shift, 'existing_shifts': existing_shifts, 'show_warning': False})
 
 @login_required
+@admin_required
 def delete_shift(request, shift_id):
     if not request.user.is_admin:
         return redirect('worker_shift_list')
@@ -440,6 +456,7 @@ def view_shift(request, shift_id):
         return redirect('worker_shift_list',)
 
 @login_required
+@admin_required
 def manage_users(request):
     if not request.user.is_admin:
         return redirect('worker_shift_list')
@@ -453,6 +470,7 @@ def manage_users(request):
     return render(request, 'admin/manage_users.html', context)
 
 @login_required
+@admin_required
 def edit_user(request, user_id):
     user = get_object_or_404(User, id=user_id)
     if request.method == 'POST':
@@ -465,6 +483,7 @@ def edit_user(request, user_id):
     return render(request, 'admin/edit_user.html', {'form': form, 'user': user})
 
 @login_required
+@admin_required
 def create_user(request):
     if request.method == 'POST':
         form = CustomUserCreationForm(request.POST)
@@ -478,6 +497,7 @@ def create_user(request):
     return render(request, 'admin/create_user.html', {'form': form})
 
 @login_required
+@admin_required
 def delete_user(request, user_id):
     user = get_object_or_404(User, id=user_id)
     if request.method == 'POST':
@@ -486,6 +506,7 @@ def delete_user(request, user_id):
     return render(request, 'admin/delete_user.html', {'user': user})
 
 @login_required
+@admin_required
 def view_timesheet(request, user_id):
     if not request.user.is_admin:
         return redirect('worker_shift_list')
@@ -610,6 +631,8 @@ def worker_change_password(request):
         form = PasswordChangeForm(request.user)
     return render(request, 'worker/worker_change_password.html', {'form': form})
 
+@login_required
+@admin_required
 def admin_reset_password(request, user_id):
     user = get_object_or_404(User, id=user_id)
     if request.method == 'POST':
@@ -624,6 +647,8 @@ def admin_reset_password(request, user_id):
         form = SetPasswordForm(user)
     return render(request, 'admin/admin_reset_password.html', {'form': form, 'user': user})
 
+@login_required
+@admin_required
 def manage_timesheets(request):
     today = timezone.now().date()
     last_monday = today - timedelta(days=today.weekday() + 7)
@@ -644,6 +669,8 @@ def manage_timesheets(request):
     
     return render(request, 'admin/manage_timesheets.html', {'users_with_timesheet_status': users_with_timesheet_status})
 
+@login_required
+@admin_required
 def generate_timesheet(request, user_id):
     user = get_object_or_404(User, id=user_id)
     today = timezone.now().date()
@@ -664,6 +691,7 @@ def generate_timesheet(request, user_id):
     return redirect('view_timesheet', user_id=user.id)
     
 @login_required
+@admin_required
 def view_timesheet(request, user_id):
     user = get_object_or_404(User, id=user_id)
     today = timezone.now().date()
@@ -742,6 +770,7 @@ def download_timesheet_excel(request, user_id):
 
 
 @login_required
+@admin_required
 def admin_reporting(request):
     if not request.user.is_admin:
         return redirect('worker_shift_list')
