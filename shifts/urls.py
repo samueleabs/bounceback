@@ -1,8 +1,24 @@
 # shifts/urls.py
-from django.urls import path
+from django.urls import path, include
 # from .views import landing_page, create_user, delete_user, user_login, worker_shift_list, set_availability, sign_off_shift, send_message, admin_dashboard, manage_shifts, manage_users, view_timesheets, manage_messages, WorkerLogoutView
 from .views import *
 from django.contrib.auth import views as auth_views
+from rest_framework.routers import DefaultRouter
+from .views_api import *
+from django.conf import settings
+from rest_framework_simplejwt.views import (
+    TokenObtainPairView,
+    TokenRefreshView,
+)
+
+router = DefaultRouter()
+router.register(r'shifts', ShiftViewSet)
+router.register(r'users', UserViewSet)
+router.register(r'locations', LocationViewSet)
+router.register(r'worker_profiles', WorkerProfileViewSet)
+router.register(r'availabilities', AvailabilityViewSet)
+router.register(r'notifications', NotificationViewSet)
+
 
 
 urlpatterns = [
@@ -56,4 +72,13 @@ urlpatterns = [
     path('notifications/clear/', clear_notifications, name='clear_notifications'),
     path('notifications/mark_as_read/<int:notification_id>/', mark_as_read, name='mark_as_read'),
     path('logout/', WorkerLogoutView.as_view(), name='worker_logout'),
+    path('api/', include(router.urls)),
+    path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
 ]
+
+if settings.DEBUG:
+    import debug_toolbar
+    urlpatterns = [
+        path('__debug__/', include(debug_toolbar.urls)),
+    ] + urlpatterns
