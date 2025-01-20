@@ -28,6 +28,7 @@
                   <th scope="col">First Name</th>
                   <th scope="col">Last Name</th>
                   <th scope="col">Email</th>
+                  <th scope="col">Date</th>
                   <th scope="col">Actions</th>
                 </tr>
               </thead>
@@ -38,10 +39,13 @@
                     <td>{{ item.user.last_name }}</td>
                     <td>{{ item.user.email }}</td>
                     <td>
+                      <input type="date" id="date-{{ item.user.id }}" class="form-control">
+                    </td>
+                    <td>
                       {% if item.timesheet_generated %}
-                        <a href="{% url 'view_timesheet' item.user.id %}" class="btn btn-sm bg-gradient-primary">View Timesheet</a>
+                        <a href="#" onclick="viewTimesheet({{ item.user.id }})" class="btn btn-sm bg-gradient-primary">View Timesheet</a>
                       {% else %}
-                        <a href="{% url 'generate_timesheet' item.user.id %}" class="btn btn-sm bg-gradient-warning">Generate Timesheet</a>
+                        <a href="#" onclick="generateTimesheet({{ item.user.id }})" class="btn btn-sm bg-gradient-warning">Generate Timesheet</a>
                       {% endif %}
                     </td>
                   </tr>
@@ -54,7 +58,25 @@
     </div>
   </div>
 
+  <script>
+    function generateTimesheet(userId) {
+      const date = document.getElementById(`date-${userId}`).value;
+      if (date) {
+        window.location.href = `{% url 'generate_timesheet' 0 '0000-00-00' %}`.replace('0', userId).replace('0000-00-00', date);
+      } else {
+        alert('Please select a date.');
+      }
+    }
 
+    function viewTimesheet(userId) {
+      const date = document.getElementById(`date-${userId}`).value;
+      if (date) {
+        window.location.href = `{% url 'view_timesheet' 0 '0000-00-00' %}`.replace('0', userId).replace('0000-00-00', date);
+      } else {
+        alert('Please select a date.');
+      }
+    }
+  </script>
 
   <!-- Custom CSS for styling DataTables elements -->
   <style>

@@ -124,19 +124,19 @@ def worker_shift_list(request):
     today = timezone.now().date()
     now = timezone.now().time()
 
-    # Filter shifts that start today or end today, and are not completed
-    today_shifts = Shift.objects.filter(
-        worker=request.user
-    ).filter(
-        (Q(date=today) | Q(date=today - timedelta(days=1), end_time__gt=now)) & Q(is_completed=False)
-    ).distinct()
-
     # Filter unsigned shifts that are past their end time
     unsigned_shifts = Shift.objects.filter(
         worker=request.user,
         date__lt=today,
         is_completed=False
     ).distinct()
+
+    # Filter shifts that start today or end today, and are not completed, excluding unsigned shifts
+    today_shifts = Shift.objects.filter(
+        worker=request.user
+    ).filter(
+        (Q(date=today) | Q(date=today - timedelta(days=1), end_time__gt=now)) & Q(is_completed=False)
+    ).exclude(id__in=unsigned_shifts.values('id')).distinct()
 
     upcoming_shifts = Shift.objects.filter(worker=request.user, date__gt=today)
     previous_shifts = Shift.objects.filter(worker=request.user, date__lt=today, is_completed=True)
@@ -671,15 +671,18 @@ def manage_timesheets(request):
 
 @login_required
 @admin_required
-def generate_timesheet(request, user_id):
+def generate_timesheet(request, user_id, date):
     user = get_object_or_404(User, id=user_id)
-    today = timezone.now().date()
-    last_monday = today - timedelta(days=today.weekday() + 7)
+    try:
+        selected_date = datetime.strptime(date, '%Y-%m-%d').date()
+    except ValueError:
+        # Handle invalid date format
+        return redirect('some_error_page')
+
+    last_monday = selected_date
     last_sunday = last_monday + timedelta(days=6)
     
-    # Logic to generate timesheet for the user for the previous week
-    # For now, we will just mark the timesheet as generated
-    # You can add your actual timesheet generation logic here
+    # Logic to generate timesheet for the user for the selected week
     shifts = Shift.objects.filter(worker=user, date__range=[last_monday, last_sunday], is_completed=True, signature__isnull=False)
     for shift in shifts:
         shift.timesheet_generated = True  # Assuming you have a field to mark timesheet generation
@@ -688,14 +691,19 @@ def generate_timesheet(request, user_id):
     # Create a notification for the worker
     Notification.objects.create(user=user, content=f"Timesheet generated for the week of {last_monday.strftime('%Y-%m-%d')} to {last_sunday.strftime('%Y-%m-%d')}")
     
-    return redirect('view_timesheet', user_id=user.id)
-    
+    return redirect('view_timesheet', user_id=user.id, date=date)
+
 @login_required
 @admin_required
-def view_timesheet(request, user_id):
+def view_timesheet(request, user_id, date):
     user = get_object_or_404(User, id=user_id)
-    today = timezone.now().date()
-    last_monday = today - timedelta(days=today.weekday() + 7)
+    try:
+        selected_date = datetime.strptime(date, '%Y-%m-%d').date()
+    except ValueError:
+        # Handle invalid date format
+        return redirect('some_error_page')
+
+    last_monday = selected_date
     last_sunday = last_monday + timedelta(days=6)
     
     shifts = Shift.objects.filter(worker=user, date__range=[last_monday, last_sunday], is_completed=True, signature__isnull=False)
@@ -713,7 +721,7 @@ def view_timesheet(request, user_id):
     
     shifts_by_location_json = json.dumps(shifts_by_location, cls=DjangoJSONEncoder)
     
-    return render(request, 'admin/view_timesheet.html', {'user': user, 'locations': shifts_by_location.keys(), 'shifts_by_location_json': shifts_by_location_json})
+    return render(request, 'admin/view_timesheet.html', {'user': user, 'locations': shifts_by_location.keys(), 'shifts_by_location_json': shifts_by_location_json, 'date': date})
 
 import logging
 logger = logging.getLogger(__name__)
@@ -730,18 +738,31 @@ def download_timesheet_pdf(request, user_id):
         return redirect('worker_shift_list')
     
     location_name = request.GET.get('location')
+    date_str = request.GET.get('date')
+    
+    # logger.debug(f"Location: {location_name}, Date: {date_str}")
     
     if not location_name:
         return HttpResponse("Location not specified", status=400)
     
-    today = timezone.now().date()
-    last_monday = today - timedelta(days=today.weekday() + 7)
+    if not date_str:
+        # logger.error("Date parameter is missing")
+        return HttpResponse("Date parameter is missing", status=400)
+    
+    try:
+        selected_date = datetime.strptime(date_str, '%Y-%m-%d').date()
+    except ValueError:
+        # logger.error(f"Invalid date format: {date_str}")
+        return HttpResponse("Invalid date format", status=400)
+    
+    last_monday = selected_date - timedelta(days=selected_date.weekday())
     last_sunday = last_monday + timedelta(days=6)
     
     shifts = Shift.objects.filter(worker=user, location__name=location_name, date__range=[last_monday, last_sunday], is_completed=True, signature__isnull=False)
     
     if not shifts.exists():
-        return HttpResponse("No shifts found for the specified location and date range", status=404)
+        # logger.error(f"No shifts found for the selected location and date range: {location_name}, {last_monday} to {last_sunday}")
+        return HttpResponse("No shifts found for the selected location and date range", status=404)
     
     return generate_timesheet_pdf(user, location_name, shifts, last_monday, last_sunday)
 

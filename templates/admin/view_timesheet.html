@@ -100,9 +100,15 @@
         });
       }
 
-      // Update the download links with the selected location
-      document.getElementById('download-excel').href = "{% url 'download_timesheet_excel' user.id %}?location=" + encodeURIComponent(location);
-      document.getElementById('download-pdf').href = "{% url 'download_timesheet_pdf' user.id %}?location=" + encodeURIComponent(location);
+      // Update the download links with the selected location and date
+      const date = "{{ date }}";
+      document.getElementById('download-excel').href = "{% url 'download_timesheet_excel' user.id %}?location=" + encodeURIComponent(location) + "&date=" + encodeURIComponent(date);
+      document.getElementById('download-pdf').href = "{% url 'download_timesheet_pdf' user.id %}?location=" + encodeURIComponent(location) + "&date=" + encodeURIComponent(date);
     }
+
+    // Initialize the table with the current location and date
+    document.addEventListener('DOMContentLoaded', function () {
+      updateShiftsTable();
+    });
   </script>
 {% endblock %}
