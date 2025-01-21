@@ -46,7 +46,7 @@ urlpatterns = [
     path('dashboard/edit_user/<int:user_id>/', edit_user, name='edit_user'),
     path('dashboard/reset_password/<int:user_id>/', admin_reset_password, name='admin_reset_password'),
     path('dashboard/delete_user/<int:user_id>/', delete_user, name='delete_user'),
-    path('dashboard/view_timesheet/<int:user_id>//<str:date>/', view_timesheet, name='view_timesheet'),
+    path('dashboard/view_timesheet/<int:user_id>/<str:date>/', view_timesheet, name='view_timesheet'),
     path('dashboard/download_timesheet_excel/<int:user_id>/', download_timesheet_excel, name='download_timesheet_excel'),
     path('dashboard/download_timesheet_pdf/<int:user_id>/', download_timesheet_pdf, name='download_timesheet_pdf'),
     path('dashboard/manage_locations/', manage_locations, name='manage_locations'),
@@ -75,6 +75,7 @@ urlpatterns = [
     path('api/', include(router.urls)),
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('update_subscription/', update_subscription, name='update_subscription'),
 ]
 
 if settings.DEBUG:

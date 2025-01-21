@@ -20,7 +20,7 @@ environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 SECRET_KEY = env('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = []
 
@@ -52,7 +52,6 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'csp.middleware.CSPMiddleware',
-    'shifts.csp_middleware.ContentSecurityPolicyMiddleware',
     'debug_toolbar.middleware.DebugToolbarMiddleware',
 ]
 
@@ -79,21 +78,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'scheduler.wsgi.application'
 
-
-# Database
-# https://docs.djangoproject.com/en/5.1/ref/settings/#databases
-
-# Database settings
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.mysql',
-#         'NAME': env('DATABASE_NAME'),
-#         'USER': env('DATABASE_USER'),
-#         'PASSWORD': env('DATABASE_PASSWORD'),
-#         'HOST': env('DATABASE_HOST'),
-#         'PORT': env('DATABASE_PORT', default='3306'),
-#     }
-# }
 
 # Database configuration
 DATABASES = {
@@ -191,32 +175,51 @@ else:
 
 
 # Update CSP settings
-CSP_DEFAULT_SRC = ("'self'",)
-CSP_SCRIPT_SRC = ("'self'", "https://cdn.jsdelivr.net", "https://www.gstatic.com")
-CSP_STYLE_SRC = ("'self'", "https://cdn.jsdelivr.net")
-CSP_IMG_SRC = ("'self'", "data:", "https://www.gstatic.com")
-CSP_FONT_SRC = ("'self'", "https://cdn.jsdelivr.net")
-CSP_CONNECT_SRC = ("'self'", "https://www.gstatic.com")
+CSP_DEFAULT_SRC = ["'none'"]
+CSP_SCRIPT_SRC = [
+    "'self'",
+    "'unsafe-inline'",
+    "'unsafe-eval'",
+    "https://stackpath.bootstrapcdn.com",
+    "https://cdn.jsdelivr.net",
+    "https://www.gstatic.com",
+    "https://cdn.onesignal.com",
+    "https://onesignal.com",
+    "http://localhost"
+]
+CSP_STYLE_SRC = [
+    "'self'",
+    "'unsafe-inline'",
+    "https://stackpath.bootstrapcdn.com"
+]
+CSP_IMG_SRC = [
+    "'self'",
+    "data:",
+    "https://www.gstatic.com"
+]
+CSP_FONT_SRC = [
+    "'self'",
+    "https://cdn.jsdelivr.net"
+]
+CSP_CONNECT_SRC = [
+    "'self'",
+    "https://www.gstatic.com",
+    "https://cdn.onesignal.com",
+    "https://onesignal.com",
+    "http://localhost"
+]
+CSP_FRAME_SRC = [
+    "'self'",
+    "https://cdn.onesignal.com"
+]
+CSP_WORKER_SRC = [
+    "'self'",
+    "http://localhost",
+    "https://cdn.onesignal.com"
+]
+CSP_MANIFEST_SRC = [
+    "'self'",
+    "http://localhost",
+    "https://cdn.onesignal.com"
+]
 
-# LOGGING = {
-#     'version': 1,
-#     'disable_existing_loggers': False,
-#     'handlers': {
-#         'console': {
-#             'level': 'DEBUG',
-#             'class': 'logging.StreamHandler',
-#         },
-#         'file': {
-#             'level': 'DEBUG',
-#             'class': 'logging.FileHandler',
-#             'filename': os.path.join(BASE_DIR, 'debug.log'),
-#         },
-#     },
-#     'loggers': {
-#         'django': {
-#             'handlers': ['console', 'file'],
-#             'level': 'DEBUG',
-#             'propagate': True,
-#         },
-#     },
-# }

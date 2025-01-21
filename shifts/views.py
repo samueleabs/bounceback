@@ -33,6 +33,7 @@ from django.template.loader import render_to_string
 from django.views.decorators.cache import never_cache
 from decimal import Decimal
 from .decorators import admin_required
+from pywebpush import webpush, WebPushException
 
 
 def landing_page(request):
@@ -396,6 +397,8 @@ def create_shift(request):
             else:
                 shift = form.save()
                 Notification.objects.create(user=shift.worker, content=f"New shift assigned on {shift.date}")
+                if shift.worker.webpush_subscription:
+                    send_web_push(shift.worker.webpush_subscription, f"New shift assigned on {shift.date}")
                 return redirect('manage_shifts')
     else:
         form = ShiftForm()
@@ -439,6 +442,8 @@ def delete_shift(request, shift_id):
     shift = get_object_or_404(Shift, id=shift_id)
     if request.method == 'POST':
         Notification.objects.create(user=shift.worker, content=f"Shift on {shift.date} has been dropped.")
+        if shift.worker.webpush_subscription:
+                    send_web_push(shift.worker.webpush_subscription, f"Shift on {shift.date} has been dropped.")
         shift.delete()
         return redirect('manage_shifts')
     return render(request, 'admin/delete_shift.html', {'shift': shift})
@@ -910,3 +915,29 @@ def export_report_to_excel(request):
     response['Content-Disposition'] = 'attachment; filename=shifts_report.xlsx'
     wb.save(response)
     return response
+
+
+
+VAPID_PUBLIC_KEY = "BBYukWzoTkC_VSFVILRJCS1IYaJzNiG7sdbAFFUfjb4KnoZmPvIoAPhHPSMz4z8OGPvCENwUNSyfFtFA3eNsSwg"
+VAPID_PRIVATE_KEY = "BBYukWzoTkC_VSFVILRJCS1IYaJzNiG7sdbAFFUfjb4KnoZmPvIoAPhHPSMz4z8OGPvCENwUNSyfFtFA3eNsSwg"
+VAPID_CLAIMS = {"sub": "mailto:samuel.eabs@gmail.com"}
+
+@login_required
+def update_subscription(request):
+    if request.method == 'POST':
+        subscription_info = json.loads(request.body)
+        request.user.webpush_subscription = subscription_info
+        request.user.save()
+        return JsonResponse({'status': 'success'})
+    return JsonResponse({'status': 'failed'}, status=400)
+
+def send_web_push(subscription_information, message_body):
+    try:
+        webpush(
+            subscription_info=subscription_information,
+            data=message_body,
+            vapid_private_key=VAPID_PRIVATE_KEY,
+            vapid_claims=VAPID_CLAIMS
+        )
+    except WebPushException as ex:
+        print("I'm sorry, Dave, but I can't do that: {}", repr(ex))

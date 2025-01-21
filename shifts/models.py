@@ -5,6 +5,7 @@ from django.contrib.auth.models import AbstractUser
 class User(AbstractUser):
     is_admin = models.BooleanField(default=False)
     is_worker = models.BooleanField(default=False)
+    webpush_subscription = models.JSONField(blank=True, null=True)
 
 class WorkerProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
