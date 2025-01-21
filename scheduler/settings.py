@@ -190,7 +190,8 @@ CSP_SCRIPT_SRC = [
 CSP_STYLE_SRC = [
     "'self'",
     "'unsafe-inline'",
-    "https://stackpath.bootstrapcdn.com"
+    "https://stackpath.bootstrapcdn.com",
+    "https://onesignal.com"
 ]
 CSP_IMG_SRC = [
     "'self'",
