@@ -3,6 +3,7 @@ import os
 from django.urls import reverse_lazy
 import environ
 import dj_database_url
+from dotenv import load_dotenv
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -185,6 +186,8 @@ CSP_SCRIPT_SRC = [
     "https://www.gstatic.com",
     "https://cdn.onesignal.com",
     "https://onesignal.com",
+    "https://firebaseinstallations.googleapis.com",
+    "https://fcmregistrations.googleapis.com",
     "http://localhost"
 ]
 CSP_STYLE_SRC = [
@@ -207,6 +210,8 @@ CSP_CONNECT_SRC = [
     "https://www.gstatic.com",
     "https://cdn.onesignal.com",
     "https://onesignal.com",
+    "https://firebaseinstallations.googleapis.com",
+    "https://fcmregistrations.googleapis.com",
     "http://localhost"
 ]
 CSP_FRAME_SRC = [
@@ -224,3 +229,16 @@ CSP_MANIFEST_SRC = [
     "https://cdn.onesignal.com"
 ]
 
+
+load_dotenv()
+
+FIREBASE_CONFIG = {
+    'apiKey': os.getenv('FIREBASE_API_KEY'),
+    'authDomain': os.getenv('FIREBASE_AUTH_DOMAIN'),
+    'projectId': os.getenv('FIREBASE_PROJECT_ID'),
+    'storageBucket': os.getenv('FIREBASE_STORAGE_BUCKET'),
+    'messagingSenderId': os.getenv('FIREBASE_MESSAGING_SENDER_ID'),
+    'appId': os.getenv('FIREBASE_APP_ID'),
+    'measurementId': os.getenv('FIREBASE_MEASUREMENT_ID'),
+    'vapidKey': os.getenv('FIREBASE_VAPID_KEY'),
+}

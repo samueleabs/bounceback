@@ -76,6 +76,8 @@ urlpatterns = [
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('update_subscription/', update_subscription, name='update_subscription'),
+    path('firebase-config/', firebase_config_view, name='firebase_config'),
+    path('firebase-messaging-sw.js', service_worker_view, name='service_worker'),
 ]
 
 if settings.DEBUG:

@@ -17,7 +17,7 @@
     style-src 'self' 'unsafe-inline' https://stackpath.bootstrapcdn.com https://onesignal.com;
     img-src 'self' data: https://www.gstatic.com;
     font-src 'self' https://cdn.jsdelivr.net;
-    connect-src 'self' https://www.gstatic.com https://cdn.onesignal.com https://onesignal.com http://localhost;
+    connect-src 'self' https://www.gstatic.com https://cdn.onesignal.com https://onesignal.com https://firebaseinstallations.googleapis.com https://fcmregistrations.googleapis.com http://localhost;
     frame-src 'self' https://cdn.onesignal.com;
     worker-src 'self' http://localhost https://cdn.onesignal.com;
     manifest-src 'self' http://localhost https://cdn.onesignal.com;">
@@ -212,6 +212,81 @@
     <script src="{% static 'js/argon-dashboard.min.js' %}"></script>
 
     <script src="{% static 'js/select2.min.js' %}"></script>
+    
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.2.0/firebase-app.js";
+        import { getMessaging, getToken, onMessage } from "https://www.gstatic.com/firebasejs/11.2.0/firebase-messaging.js";
+    
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "{{ firebase_config.apiKey }}",
+            authDomain: "{{ firebase_config.authDomain }}",
+            projectId: "{{ firebase_config.projectId }}",
+            storageBucket: "{{ firebase_config.storageBucket }}",
+            messagingSenderId: "{{ firebase_config.messagingSenderId }}",
+            appId: "{{ firebase_config.appId }}",
+            measurementId: "{{ firebase_config.measurementId }}"
+        };
+    
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+    
+        // Initialize Firebase Cloud Messaging
+        const messaging = getMessaging(app);
+    
+        // Register the service worker
+        navigator.serviceWorker.register('{% url "service_worker" %}')
+            .then((registration) => {
+                console.log('Service Worker registered with scope:', registration.scope);
+    
+                // Request permission to send notifications
+                Notification.requestPermission()
+                    .then((permission) => {
+                        if (permission === 'granted') {
+                            console.log('Notification permission granted.');
+                            return getToken(messaging, { 
+                                vapidKey: '{{ firebase_config.vapidKey }}',
+                                serviceWorkerRegistration: registration
+                            });
+                        } else {
+                            console.log('Unable to get permission to notify.');
+                        }
+                    })
+                    .then((token) => {
+                        if (token) {
+                            console.log('FCM Token:', token);
+                            // Send the token to your server to save it
+                            fetch("{% url 'update_subscription' %}", {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'X-CSRFToken': '{{ csrf_token }}'
+                                },
+                                body: JSON.stringify({ token: token })
+                            });
+                        }
+                    })
+                    .catch((err) => {
+                        console.log('An error occurred while retrieving token. ', err);
+                    });
+            })
+            .catch((err) => {
+                console.log('Service Worker registration failed: ', err);
+            });
+    
+        // Handle incoming messages
+        onMessage(messaging, (payload) => {
+            console.log('Message received. ', payload);
+            // Customize notification here
+            const notificationTitle = payload.notification.title;
+            const notificationOptions = {
+                body: payload.notification.body,
+                icon: '/static/img/notification-icon.png'
+            };
+    
+            new Notification(notificationTitle, notificationOptions);
+        });
+    </script>
 
     {% block extra_js %}{% endblock %}
 </body>

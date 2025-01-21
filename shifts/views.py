@@ -34,6 +34,8 @@ from django.views.decorators.cache import never_cache
 from decimal import Decimal
 from .decorators import admin_required
 from pywebpush import webpush, WebPushException
+from .notifications import send_push_notification
+from firebase_admin import messaging
 
 
 def landing_page(request):
@@ -89,6 +91,7 @@ def admin_dashboard(request):
     total_shifts = Shift.objects.count()
     recent_shifts = Shift.objects.order_by('-date')[:5]
     unsigned_shifts = Shift.objects.filter(is_completed=False, date__lte=date.today()).order_by('-date')[:5]
+
     
     # Get the selected date from the request
     selected_date_str = request.GET.get('selected_date', '')
@@ -112,6 +115,7 @@ def admin_dashboard(request):
         'days_of_week': json.dumps([day.strftime('%A %Y-%m-%d') for day in days_of_week]),
         'shifts_per_day': json.dumps(shifts_per_day),
         'selected_date': selected_date.strftime('%Y-%m-%d'),
+        'firebase_config': settings.FIREBASE_CONFIG,
     }
     
     return render(request, 'admin/dashboard.html', context)
@@ -152,6 +156,7 @@ def worker_shift_list(request):
         'previous_shifts': previous_shifts,
         'unread_notifications_count': unread_notifications_count,
         'notifications': recent_notifications,
+        'firebase_config': settings.FIREBASE_CONFIG,
     }
 
     return render(request, 'worker/worker_shift_list.html', context)
@@ -398,7 +403,7 @@ def create_shift(request):
                 shift = form.save()
                 Notification.objects.create(user=shift.worker, content=f"New shift assigned on {shift.date}")
                 if shift.worker.webpush_subscription:
-                    send_web_push(shift.worker.webpush_subscription, f"New shift assigned on {shift.date}")
+                    send_push_notification(shift.worker.webpush_subscription, f"New shift assigned on {shift.date}")
                 return redirect('manage_shifts')
     else:
         form = ShiftForm()
@@ -443,7 +448,7 @@ def delete_shift(request, shift_id):
     if request.method == 'POST':
         Notification.objects.create(user=shift.worker, content=f"Shift on {shift.date} has been dropped.")
         if shift.worker.webpush_subscription:
-                    send_web_push(shift.worker.webpush_subscription, f"Shift on {shift.date} has been dropped.")
+                    send_push_notification(shift.worker.webpush_subscription, f"Shift on {shift.date} has been dropped.")
         shift.delete()
         return redirect('manage_shifts')
     return render(request, 'admin/delete_shift.html', {'shift': shift})
@@ -916,11 +921,13 @@ def export_report_to_excel(request):
     wb.save(response)
     return response
 
-
-
-VAPID_PUBLIC_KEY = "BBYukWzoTkC_VSFVILRJCS1IYaJzNiG7sdbAFFUfjb4KnoZmPvIoAPhHPSMz4z8OGPvCENwUNSyfFtFA3eNsSwg"
-VAPID_PRIVATE_KEY = "BBYukWzoTkC_VSFVILRJCS1IYaJzNiG7sdbAFFUfjb4KnoZmPvIoAPhHPSMz4z8OGPvCENwUNSyfFtFA3eNsSwg"
-VAPID_CLAIMS = {"sub": "mailto:samuel.eabs@gmail.com"}
+@login_required
+def firebase_config_view(request):
+    print("Firebase Config:", settings.FIREBASE_CONFIG)
+    context = {
+        'firebase_config': settings.FIREBASE_CONFIG,
+    }
+    return render(request, 'base_generic.html', context)
 
 @login_required
 def update_subscription(request):
@@ -930,14 +937,8 @@ def update_subscription(request):
         request.user.save()
         return JsonResponse({'status': 'success'})
     return JsonResponse({'status': 'failed'}, status=400)
-
-def send_web_push(subscription_information, message_body):
-    try:
-        webpush(
-            subscription_info=subscription_information,
-            data=message_body,
-            vapid_private_key=VAPID_PRIVATE_KEY,
-            vapid_claims=VAPID_CLAIMS
-        )
-    except WebPushException as ex:
-        print("I'm sorry, Dave, but I can't do that: {}", repr(ex))
+    
+def service_worker_view(request):
+    firebase_config = settings.FIREBASE_CONFIG
+    sw_content = render_to_string('firebase-messaging-sw.js', {'firebase_config': firebase_config})
+    return HttpResponse(sw_content, content_type='application/javascript')
