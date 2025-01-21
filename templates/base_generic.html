@@ -22,19 +22,6 @@
     worker-src 'self' http://localhost https://cdn.onesignal.com;
     manifest-src 'self' http://localhost https://cdn.onesignal.com;">
 
-    <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
-    <script>
-        window.OneSignalDeferred = window.OneSignalDeferred || [];
-        OneSignalDeferred.push(async function(OneSignal) {
-            await OneSignal.init({
-                appId: "2b5e1d6a-92ab-4e85-8a67-2fb88e480e4c",
-                serviceWorkerPath: "{% static 'OneSignalSDKWorker.js' %}",
-                serviceWorkerUpdaterPath: "{% static 'OneSignalSDKUpdaterWorker.js' %}",
-                serviceWorkerParam: { scope: '/' },
-                path: '/',
-            });
-        });
-    </script>
 
     <!-- Icons -->
     <link href="{% static 'css/nucleo-icons.css' %}" rel="stylesheet" />
