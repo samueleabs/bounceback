@@ -408,7 +408,7 @@ def create_shift(request):
     else:
         form = ShiftForm()
     
-    return render(request, 'admin/create_shift.html', {'form': form, 'existing_shifts': existing_shifts, 'show_warning': False})
+    return render(request, 'admin/create_shift.html', {'form': form, 'existing_shifts': existing_shifts, 'show_warning': False, 'firebase_config': settings.FIREBASE_CONFIG,})
 
 @login_required
 @admin_required
@@ -437,7 +437,7 @@ def edit_shift(request, shift_id):
     else:
         form = ShiftForm(instance=shift)
     
-    return render(request, 'admin/edit_shift.html', {'form': form, 'shift': shift, 'existing_shifts': existing_shifts, 'show_warning': False})
+    return render(request, 'admin/edit_shift.html', {'form': form, 'shift': shift, 'existing_shifts': existing_shifts, 'show_warning': False, 'firebase_config': settings.FIREBASE_CONFIG,})
 
 @login_required
 @admin_required
@@ -451,7 +451,7 @@ def delete_shift(request, shift_id):
                     send_push_notification(shift.worker.webpush_subscription, f"Shift on {shift.date} has been dropped.")
         shift.delete()
         return redirect('manage_shifts')
-    return render(request, 'admin/delete_shift.html', {'shift': shift})
+    return render(request, 'admin/delete_shift.html', {'shift': shift, 'firebase_config': settings.FIREBASE_CONFIG,})
 
 @login_required
 def view_shift(request, shift_id):
@@ -674,7 +674,8 @@ def manage_timesheets(request):
         timesheet_generated = shifts.filter(worker=user, timesheet_generated=True).exists()
         users_with_timesheet_status.append({
             'user': user,
-            'timesheet_generated': timesheet_generated
+            'timesheet_generated': timesheet_generated,
+            'firebase_config': settings.FIREBASE_CONFIG,
         })
     
     return render(request, 'admin/manage_timesheets.html', {'users_with_timesheet_status': users_with_timesheet_status})
@@ -701,7 +702,7 @@ def generate_timesheet(request, user_id, date):
     # Create a notification for the worker
     Notification.objects.create(user=user, content=f"Timesheet generated for the week of {last_monday.strftime('%Y-%m-%d')} to {last_sunday.strftime('%Y-%m-%d')}")
     
-    return redirect('view_timesheet', user_id=user.id, date=date)
+    return redirect('view_timesheet', user_id=user.id, date=date,)
 
 @login_required
 @admin_required
