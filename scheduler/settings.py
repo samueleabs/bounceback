@@ -242,3 +242,6 @@ FIREBASE_CONFIG = {
     'measurementId': os.getenv('FIREBASE_MEASUREMENT_ID'),
     'vapidKey': os.getenv('FIREBASE_VAPID_KEY'),
 }
+
+VAPID_ADMIN_EMAIL = os.getenv('VAPID_ADMIN_EMAIL')
+VAPID_PRIVATE_KEY = os.getenv('VAPID_PRIVATE_KEY')

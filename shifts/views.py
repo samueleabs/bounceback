@@ -448,10 +448,12 @@ def delete_shift(request, shift_id):
     if request.method == 'POST':
         Notification.objects.create(user=shift.worker, content=f"Shift on {shift.date} has been dropped.")
         if shift.worker.webpush_subscription:
-                    send_push_notification(shift.worker.webpush_subscription, f"Shift on {shift.date} has been dropped.")
+            # Debug statement to print the webpush_subscription data
+            print("WebPush Subscription:", shift.worker.webpush_subscription)
+            send_push_notification(shift.worker.webpush_subscription, f"Shift on {shift.date} has been dropped.")
         shift.delete()
         return redirect('manage_shifts')
-    return render(request, 'admin/delete_shift.html', {'shift': shift, 'firebase_config': settings.FIREBASE_CONFIG,})
+    return render(request, 'admin/delete_shift.html', {'shift': shift, 'firebase_config': settings.FIREBASE_CONFIG})
 
 @login_required
 def view_shift(request, shift_id):
