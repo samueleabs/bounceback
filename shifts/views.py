@@ -932,6 +932,7 @@ def firebase_config_view(request):
     }
     return render(request, 'base_generic.html', context)
 
+@csrf_exempt
 @login_required
 def update_subscription(request):
     if request.method == 'POST':

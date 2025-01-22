@@ -23,17 +23,18 @@ def send_push_notification(subscription_info, body):
         # Debug statement to print the subscription_info dictionary
         print("Subscription Info:", subscription_info)
 
-        if 'token' not in subscription_info:
-            raise KeyError("Missing 'token' in subscription_info")
+        if 'endpoint' not in subscription_info or 'keys' not in subscription_info:
+            raise KeyError("Missing 'endpoint' or 'keys' in subscription_info")
 
-        token = subscription_info['token']
+        endpoint = subscription_info['endpoint']
+        keys = subscription_info['keys']
 
         webpush(
             subscription_info={
-                "endpoint": f"https://fcm.googleapis.com/fcm/send/{token}",
+                "endpoint": endpoint,
                 "keys": {
-                    "auth": "YOUR_AUTH_KEY",
-                    "p256dh": "YOUR_P256DH_KEY"
+                    "auth": keys['auth'],
+                    "p256dh": keys['p256dh']
                 }
             },
             data=json.dumps({"body": body}),
