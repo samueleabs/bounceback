@@ -162,42 +162,6 @@ def worker_shift_list(request):
     return render(request, 'worker/worker_shift_list.html', context)
 
 
-@login_required
-def worker_view_timesheet(request):
-    user = request.user
-    today = timezone.now().date()
-    last_monday = today - timedelta(days=today.weekday() + 7)
-    last_sunday = last_monday + timedelta(days=6)
-
-    shifts = Shift.objects.filter(worker=user, date__range=[last_monday, last_sunday], is_completed=True, signature__isnull=False)
-
-    unread_notifications_count = Notification.objects.filter(user=request.user, read=False).count()
-    recent_notifications = Notification.objects.filter(user=request.user).order_by('-timestamp')[:3]
-
-    # Group shifts by location
-    shifts_by_location = defaultdict(list)
-    for shift in shifts:
-        shifts_by_location[shift.location.name].append({
-            'date': shift.date.strftime('%Y-%m-%d'),
-            'start_time': shift.start_time.strftime('%H:%M'),
-            'end_time': shift.end_time.strftime('%H:%M'),
-            'is_completed': shift.is_completed,
-            'signed_by': shift.signed_by
-        })
-
-    shifts_by_location_json = json.dumps(shifts_by_location, cls=DjangoJSONEncoder)
-
-    context = {
-        'user': user,
-        'locations': shifts_by_location.keys(),
-        'shifts_by_location_json': shifts_by_location_json,
-        'unread_notifications_count': unread_notifications_count,
-        'notifications': recent_notifications,
-    }
-
-    return render(request, 'worker/view_timesheet.html', context)
-
-
 
 @login_required
 def sign_off_shift(request, shift_id):
@@ -534,6 +498,44 @@ def view_timesheet(request, user_id):
 
 
 @login_required
+def view_personal_timesheet(request, date):
+    user = request.user
+    try:
+        selected_date = datetime.strptime(date, '%Y-%m-%d').date()
+    except ValueError:
+        # Handle invalid date format
+        return redirect('some_error_page')
+
+    last_monday = selected_date
+    last_sunday = last_monday + timedelta(days=6)
+
+    shifts = Shift.objects.filter(worker=user, date__range=[last_monday, last_sunday], is_completed=True, signature__isnull=False)
+
+    # Group shifts by location
+    shifts_by_location = defaultdict(list)
+    for shift in shifts:
+        shifts_by_location[shift.location.name].append({
+            'date': shift.date.strftime('%Y-%m-%d'),
+            'start_time': shift.start_time.strftime('%H:%M'),
+            'end_time': shift.end_time.strftime('%H:%M'),
+            'is_completed': shift.is_completed,
+            'signed_by': shift.signed_by
+        })
+
+    shifts_by_location_json = json.dumps(shifts_by_location, cls=DjangoJSONEncoder)
+
+    return render(request, 'worker/view_timesheet.html', {
+        'user': user,
+        'locations': shifts_by_location.keys(),
+        'shifts_by_location_json': shifts_by_location_json,
+        'date': date
+    })
+
+
+
+
+
+@login_required
 def manage_messages(request):
     return render(request, 'admin/manage_messages.html')
 
@@ -681,6 +683,42 @@ def manage_timesheets(request):
         })
     
     return render(request, 'admin/manage_timesheets.html', {'users_with_timesheet_status': users_with_timesheet_status})
+
+
+
+
+@login_required
+def manage_personal_timesheets(request):
+    user = request.user
+    today = timezone.now().date()
+    last_monday = today - timedelta(days=today.weekday() + 7)
+    last_sunday = last_monday + timedelta(days=6)
+
+    # Filter for shifts that are completed and signed
+    shifts = Shift.objects.filter(worker=user, date__range=[last_monday, last_sunday], is_completed=True, signature__isnull=False)
+
+    # Group shifts by location
+    shifts_by_location = defaultdict(list)
+    for shift in shifts:
+        shifts_by_location[shift.location.name].append({
+            'date': shift.date.strftime('%Y-%m-%d'),
+            'start_time': shift.start_time.strftime('%H:%M'),
+            'end_time': shift.end_time.strftime('%H:%M'),
+            'is_completed': shift.is_completed,
+            'signed_by': shift.signed_by
+        })
+
+    shifts_by_location_json = json.dumps(shifts_by_location, cls=DjangoJSONEncoder)
+
+    context = {
+        'user': user,
+        'locations': shifts_by_location.keys(),
+        'shifts_by_location_json': shifts_by_location_json,
+    }
+
+    return render(request, 'worker/manage_personal_timesheets.html', context)
+
+
 
 @login_required
 @admin_required

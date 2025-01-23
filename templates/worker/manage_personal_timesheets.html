@@ -1,0 +1,98 @@
+{% extends "worker/worker_base.html" %}
+
+{% block title %}Manage Personal Timesheets{% endblock %}
+
+{% block worker_content %}
+  <div class="header bg-gradient-primary py-3">
+    <div class="container-fluid">
+      <div class="header-body">
+        <div class="row align-items-center">
+          <div class="col-lg-6 col-7">
+            <h6 class="h2 text-white d-inline-block mb-0"><i class="fas fa-sheet-plastic" style="padding-right: 10px;"></i>Timesheets</h6>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="container-fluid mt-4">
+    <div class="row">
+      <div class="col">
+        <div class="card">
+          <div class="card-header border-0">
+            <h3 class="mb-0">Select date starting Monday</h3>
+          </div>
+          <div class="table-responsive" style="padding: 10px;">
+            <table class="table align-items-center table-flush table-bordered" id="timesheets-table">
+              <thead class="thead-light">
+                <tr>
+                  <th scope="col">Date</th>
+                  <th scope="col">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>
+                    <input type="date" id="date-{{ user.id }}" class="form-control">
+                  </td>
+                  <td>
+                    <a href="#" onclick="viewTimesheet({{ user.id }})" class="btn btn-sm bg-gradient-primary">View Timesheet</a>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function viewTimesheet(userId) {
+      const date = document.getElementById(`date-${userId}`).value;
+      if (date) {
+        window.location.href = `{% url 'view_personal_timesheet' '0000-00-00' %}`.replace('0000-00-00', date);
+      } else {
+        alert('Please select a date.');
+      }
+    }
+  </script>
+
+  <!-- Custom CSS for styling DataTables elements -->
+  <style>
+    .dataTables_wrapper .dataTables_filter input {
+      border: 1px solid #141414;
+      border-radius: 4px;
+      padding: 5px;
+      margin-left: 0.5em;
+    }
+    .dataTables_wrapper .dataTables_paginate .paginate_button {
+      padding: 0.5em 1em;
+      margin-left: 0.5em;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      background-color: #f8f9fa;
+      color: #333;
+    }
+    .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+      background-color: #e2e6ea;
+      color: #333;
+    }
+    .dataTables_wrapper .dataTables_paginate .paginate_button.current {
+      background-color: #007bff;
+      color: black !important;
+      border: 1px solid #007bff;
+    }
+  </style>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      // Initialize DataTables
+      $('#timesheets-table').DataTable({
+        "paging": true,
+        "searching": true,
+        "ordering": true,
+        "info": true
+      });
+    });
+  </script>
+{% endblock %}

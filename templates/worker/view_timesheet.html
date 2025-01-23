@@ -33,8 +33,9 @@
                 </select>
               </div>
             </form>
-            <div class="download-buttons ">
+            <div class="download-buttons mt-3">
               <a href="#" id="download-pdf" class="btn bg-gradient-danger">Download Timesheet as PDF</a>
+              <a href="{% url 'manage_personal_timesheets' %}" class="btn bg-gradient-primary">Date Select</a>
             </div>
           </div>
         </div>
@@ -99,8 +100,14 @@
         });
       }
 
-      // Update the download links with the selected location
-      document.getElementById('download-pdf').href = "{% url 'download_timesheet_pdf' user.id %}?location=" + encodeURIComponent(location);
+      // Update the download links with the selected location and date
+      const date = "{{ date }}";
+      document.getElementById('download-pdf').href = "{% url 'download_timesheet_pdf' user.id %}?location=" + encodeURIComponent(location) + "&date=" + encodeURIComponent(date);
     }
+
+    // Initialize the table with the current location and date
+    document.addEventListener('DOMContentLoaded', function () {
+      updateShiftsTable();
+    });
   </script>
 {% endblock %}
