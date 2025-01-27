@@ -29,7 +29,8 @@
         <div class="card mb-4">
           <div class="card-header border-0">
             <span class="mb-0 text-lg text-black font-weight-bold">Welcome, {{ user.first_name }} {{ user.last_name }}</span>
-            <h3 class="mb-0">Today's Shifts</h3>
+            <h3 class="mb-0">Today's Shifts</h3><br>
+            <button class="btn bg-gradient-primary btn-sm" onClick="window.location.reload();"><span class="fa-solid fa-arrows-rotate"></span> Refresh</button>
           </div>
           <div class="card-body">
             {% if today_shifts %}
