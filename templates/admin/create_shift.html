@@ -23,7 +23,7 @@
             <h3 class="mb-0">New Shift Details</h3>
           </div>
           <div class="card-body">
-            <form method="post" action="{% url 'create_shift' %}">
+            <form id="create-shift-form" method="post" action="{% url 'create_shift' %}">
               {% csrf_token %}
               <div class="form-group">
                 <label for="id_worker">Worker</label>
@@ -94,7 +94,7 @@
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" onclick="dismissWarning()">Back</button>
-          <button type="button" class="btn btn-primary" onclick="document.forms[0].submit();">Proceed Anyway</button>
+          <button type="button" class="btn btn-primary" onclick="proceedAnyway()">Proceed Anyway</button>
         </div>
       </div>
     </div>
@@ -103,8 +103,6 @@
 {% endblock %}
 
 {% block extra_js %}
-  
-
   <script>
     $(document).ready(function() {
         $('.select2').select2();
@@ -122,6 +120,20 @@
     function dismissWarning() {
         $('#warningModal').modal('hide');
     }
-  </script>
 
+    function proceedAnyway() {
+        const form = document.getElementById('create-shift-form');
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+        // Create a hidden input to indicate that the warning was acknowledged
+        const acknowledgedInput = document.createElement('input');
+        acknowledgedInput.type = 'hidden';
+        acknowledgedInput.name = 'acknowledged';
+        acknowledgedInput.value = 'true';
+        form.appendChild(acknowledgedInput);
+
+        // Submit the form
+        form.submit();
+    }
+  </script>
 {% endblock %}

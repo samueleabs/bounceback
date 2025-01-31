@@ -356,7 +356,7 @@ def create_shift(request):
             worker = form.cleaned_data['worker']
             date = form.cleaned_data['date']
             existing_shifts = Shift.objects.filter(worker=worker, date=date)
-            if existing_shifts.exists():
+            if existing_shifts.exists() and 'acknowledged' not in request.POST:
                 # Show warning modal with existing shift details
                 return render(request, 'admin/create_shift.html', {
                     'form': form,
@@ -372,7 +372,7 @@ def create_shift(request):
     else:
         form = ShiftForm()
     
-    return render(request, 'admin/create_shift.html', {'form': form, 'existing_shifts': existing_shifts, 'show_warning': False, 'firebase_config': settings.FIREBASE_CONFIG,})
+    return render(request, 'admin/create_shift.html', {'form': form, 'existing_shifts': existing_shifts, 'show_warning': False, 'firebase_config': settings.FIREBASE_CONFIG})
 
 @login_required
 @admin_required
