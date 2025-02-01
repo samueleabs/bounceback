@@ -117,5 +117,15 @@
     <script src="{% static 'js/argon-dashboard.min.js' %}"></script>
     <script src="{% static 'js/bootstrap.bundle.min.js' %}" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
     <script src="{% static 'js/argon-dashboard.min.js' %}"></script>
+    <script>
+        // Refresh CSRF token if the page is loaded from the browser cache
+        if (performance.navigation.type === performance.navigation.TYPE_BACK_FORWARD) {
+          fetch("{% url 'get_csrf_token' %}")
+            .then(response => response.json())
+            .then(data => {
+              document.querySelector('[name=csrfmiddlewaretoken]').value = data.csrfToken;
+            });
+        }
+      </script>
 </body>
 </html>

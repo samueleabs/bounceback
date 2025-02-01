@@ -36,6 +36,7 @@ from .decorators import admin_required
 from pywebpush import webpush, WebPushException
 from .notifications import send_push_notification
 from firebase_admin import messaging
+from django.views.decorators.csrf import ensure_csrf_cookie
 
 
 def landing_page(request):
@@ -46,7 +47,19 @@ def landing_page(request):
             return redirect('worker_shift_list')
     return render(request, 'landing_page.html')
 
+@ensure_csrf_cookie
+def get_csrf_token(request):
+    return JsonResponse({'csrfToken': request.csrf_token})
+    
 def user_login(request):
+    if request.user.is_authenticated:
+        if request.user.is_admin:
+            return redirect('admin_dashboard')
+        elif request.user.is_worker:
+            return redirect('worker_shift_list')
+        else:
+            return redirect('landing_page')  # Redirect to a default page if user type is not recognized
+
     if request.method == 'POST':
         form = AuthenticationForm(request, data=request.POST)
         if form.is_valid():

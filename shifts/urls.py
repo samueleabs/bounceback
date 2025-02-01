@@ -24,6 +24,7 @@ router.register(r'notifications', NotificationViewSet)
 urlpatterns = [
     path('', landing_page, name='landing_page'),
     path('login/', user_login, name='user_login'),
+    path('get_csrf_token/', get_csrf_token, name='get_csrf_token'),
     path('worker/shifts/', worker_shift_list, name='worker_shift_list'),
     path('manage_personal_timesheets/', manage_personal_timesheets, name='manage_personal_timesheets'),
     path('view_personal_timesheet/<str:date>/', view_personal_timesheet, name='view_personal_timesheet'),
