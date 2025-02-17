@@ -44,7 +44,7 @@
                                         <strong>Date:</strong> {{ shift.date }}<br>
                                         <strong>Start Time:</strong> {{ shift.start_time }}<br>
                                         <strong>End Time:</strong> {{ shift.end_time }}<br>
-                                        <strong>Completed:</strong> {{ shift.is_completed|yesno:"Yes,No" }}
+                                        <strong>Sleep In:</strong> {% if shift.sleep_in %}<i class="fas fa-bed"></i>{% else %}No{% endif %}
                                     </p>
                                     <a href="{% url 'view_shift' shift.id %}" class="btn bg-gradient-primary btn-sm">View</a>
                                     {% if not shift.is_completed %}
@@ -78,7 +78,8 @@
                                         <strong>Date:</strong> {{ shift.date }}<br>
                                         <strong>Start Time:</strong> {{ shift.start_time }}<br>
                                         <strong>End Time:</strong> {{ shift.end_time }}<br>
-                                        <strong>Completed:</strong> {{ shift.is_completed|yesno:"Yes,No" }}
+                                        <strong>Sleep In:</strong> {% if shift.sleep_in %}<i class="fas fa-bed"></i>{% else %}No{% endif %}
+                                        <!-- <strong>Completed:</strong> {{ shift.is_completed|yesno:"Yes,No" }} -->
                                     </p>
                                     <a href="{% url 'view_shift' shift.id %}" class="btn bg-gradient-primary btn-sm">View</a>
                                     {% if not shift.is_completed %}
@@ -153,7 +154,7 @@
                             </div>
                             <div class="shift-details text-center">
                                 <div class="shift-location">{{ shift.location.name }}</div>
-                                <div class="shift-time">{{ shift.start_time|time:"H:i" }} - {{ shift.end_time|time:"H:i" }}</div>
+                                <div class="shift-time">{{ shift.start_time|time:"H:i" }} - {{ shift.end_time|time:"H:i" }}  {% if shift.sleep_in %}<i class="fas fa-bed"></i>{% endif %} </div>
                             </div>
                             <a href="{% url 'view_shift' shift.id %}" class="btn bg-gradient-primary btn-sm">View</a>
                         </div>
