@@ -19,7 +19,9 @@
       <div class="col">
         <div class="card">
           <div class="card-header border-0">
-            <h3 class="mb-0">Sign Off Shift</h3>
+            <h3 class="mb-0"><u>Sign Off Shift</u></h3><br>
+            <strong>Start-Time:</strong> <u>{{ shift.start_time|time:"H:i" }}</u>
+            <strong>End-Time:</strong> <u>{{ shift.end_time|time:"H:i" }}</u>
           </div>
           <div class="card-body">
             <form method="post" action="{% url 'sign_off_shift' shift.id %}" onsubmit="return validateForm()">
