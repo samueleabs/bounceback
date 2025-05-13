@@ -24,47 +24,60 @@ def generate_timesheet_pdf(user, location_name, shifts, last_monday, last_sunday
     
     # Offset everything lower on the page
     y_offset = 100
+    row_height = 40  # Height of each row
+    margin_bottom = 50  # Bottom margin to avoid cutting off content
+    y_start = height - 170 - y_offset  # Starting y-coordinate for the first row
     
-    # Draw the logo
-    logo_path = os.path.join(settings.BASE_DIR, 'static', 'img', 'bblogo.png')
-    try:
-        logo = Image.open(logo_path)
-        logo_width, logo_height = logo.size
-        aspect_ratio = logo_width / logo_height
-        logo_width = (width - 40) * 0.6  # Scale down the logo width by 20%
-        logo_height = logo_width / aspect_ratio
-        p.drawImage(logo_path, 20, height - logo_height - 20, width=logo_width, height=logo_height)
-    except FileNotFoundError:
-        logger.error(f"Logo file not found at {logo_path}")
-        return HttpResponse("Logo file not found", status=404)
-    
-    # Draw the header
-    p.setFont("Helvetica-Bold", 24)
-    p.setFillColorRGB(0, 0, 0.5)  # Dark blue color
-    p.drawString(50, height - logo_height - 50 - y_offset, "Temporary Agency Worker – Time Sheet")
-    p.setFont("Helvetica", 12)
-    p.setFillColorRGB(0, 0, 0)  # Black color
-    p.drawString(50, height - logo_height - 80 - y_offset, f"Agency: {user.first_name} {user.last_name}")
-    p.drawString(50, height - logo_height - 100 - y_offset, f"Location: {location_name}")
-    p.drawString(50, height - logo_height - 120 - y_offset, f"Week: {last_monday.strftime('%d/%m/%Y')} to {last_sunday.strftime('%d/%m/%Y')}")
-    
-    # Add more spacing between the header and the column headers
-    y = height - logo_height - 170 - y_offset
-    headers = ["Date", "Start Time", "End Time", "Hours Done", "Sleep In", "Signature", "Signed By"]
-    x_positions = [50, 120, 190, 260, 330, 400, 470]
-    for i, header in enumerate(headers):
-        p.drawString(x_positions[i], y, header)
-    
-    # Add more spacing between the column headers and the first entry
-    y -= 40
+    def draw_header():
+        """Draw the header and column titles."""
+        # Draw the logo
+        logo_path = os.path.join(settings.BASE_DIR, 'static', 'img', 'bblogo.png')
+        try:
+            logo = Image.open(logo_path)
+            logo_width, logo_height = logo.size
+            aspect_ratio = logo_width / logo_height
+            logo_width = (width - 40) * 0.6  # Scale down the logo width by 20%
+            logo_height = logo_width / aspect_ratio
+            p.drawImage(logo_path, 20, height - logo_height - 20, width=logo_width, height=logo_height)
+        except FileNotFoundError:
+            logger.error(f"Logo file not found at {logo_path}")
+            return HttpResponse("Logo file not found", status=404)
+        
+        # Draw the header
+        p.setFont("Helvetica-Bold", 24)
+        p.setFillColorRGB(0, 0, 0.5)  # Dark blue color
+        p.drawString(50, height - logo_height - 50 - y_offset, "Temporary Agency Worker – Time Sheet")
+        p.setFont("Helvetica", 12)
+        p.setFillColorRGB(0, 0, 0)  # Black color
+        p.drawString(50, height - logo_height - 80 - y_offset, f"Agency: {user.first_name} {user.last_name}")
+        p.drawString(50, height - logo_height - 100 - y_offset, f"Location: {location_name}")
+        p.drawString(50, height - logo_height - 120 - y_offset, f"Week: {last_monday.strftime('%d/%m/%Y')} to {last_sunday.strftime('%d/%m/%Y')}")
+        
+        # Draw column headers
+        y = height - logo_height - 170 - y_offset
+        headers = ["Date", "Start Time", "End Time", "Hours Done", "Sleep In", "Signature", "Signed By"]
+        x_positions = [50, 120, 190, 260, 330, 400, 470]
+        for i, header in enumerate(headers):
+            p.drawString(x_positions[i], y, header)
+        return y - 40  # Return the y-coordinate for the first row
+
+    # Draw the header for the first page
+    y = draw_header()
     total_hours = 0
     total_sleep_in = 0
-    row_height = 40  # Increase the row height for better spacing
+
     for shift in shifts:
+        # Check if we need to start a new page
+        if y < margin_bottom:
+            p.showPage()  # Start a new page
+            y = draw_header()  # Redraw the header on the new page
+        
+        # Calculate hours done
         hours_done = (datetime.combine(date.min, shift.end_time) - datetime.combine(date.min, shift.start_time)).seconds / 3600
         total_hours += hours_done
         total_sleep_in += 1 if shift.sleep_in else 0
         
+        # Draw the shift details
         p.drawString(50, y, shift.date.strftime('%d/%m/%Y'))
         p.drawString(120, y, shift.start_time.strftime('%H:%M'))
         p.drawString(190, y, shift.end_time.strftime('%H:%M'))
@@ -95,9 +108,13 @@ def generate_timesheet_pdf(user, location_name, shifts, last_monday, last_sunday
         signed_by = shift.signed_by if shift.signed_by else "N/A"
         p.drawString(470, y, signed_by)
         
-        y -= row_height  # Adjust the spacing for the next shift
+        y -= row_height  # Move to the next row
+
+    # Add totals on the last page
+    if y < margin_bottom:
+        p.showPage()  # Start a new page if needed
+        y = draw_header()  # Redraw the header on the new page
     
-    # Add more spacing between the last entry and the totals
     y -= 40
     p.drawString(50, y, "Total")
     p.drawString(260, y, f"{total_hours:.2f}")
