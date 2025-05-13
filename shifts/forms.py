@@ -20,12 +20,12 @@ class ShiftForm(forms.ModelForm):
 
     class Meta:
         model = Shift
-        fields = ['worker', 'location', 'date', 'start_time', 'end_time', 'sleep_in', 'is_completed', 'signature', 'signed_by','reference']
+        fields = ['worker', 'location', 'date', 'start_time', 'end_time', 'sleep_in', 'is_completed', 'signature', 'signed_by', 'reference']
         widgets = {
             'worker': forms.Select(attrs={'class': 'form-control select2'}),
             'location': forms.Select(attrs={'class': 'form-control'}),
             'sleep_in': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
-            'is_completed': forms.Select(attrs={'class': 'form-control'}),
+            'is_completed': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
             'signature': forms.TextInput(attrs={'class': 'form-control', 'readonly': 'readonly'}),
             'signed_by': forms.TextInput(attrs={'class': 'form-control'}),
             'reference': forms.TextInput(attrs={'class': 'form-control'}),
@@ -35,7 +35,7 @@ class ShiftForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.fields['worker'].queryset = User.objects.filter(is_staff=False)
         self.fields['location'].queryset = Location.objects.all()
-        self.fields['is_completed'].choices = [(True, 'Yes'), (False, 'No')]
+
 
 class AvailabilityForm(forms.ModelForm):
     dates = forms.CharField(widget=forms.TextInput(attrs={'class': 'datepicker'}))

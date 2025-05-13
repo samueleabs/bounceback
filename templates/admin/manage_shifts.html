@@ -160,11 +160,14 @@
           var max = $('#max-date').val();
           var date = new Date(data[0]); // Use data for the date column
 
+          // Normalize the date to midnight for comparison
+          date.setHours(0, 0, 0, 0);
+
           if (
             (min === '' && max === '') ||
-            (min === '' && date <= new Date(max)) ||
-            (new Date(min) <= date && max === '') ||
-            (new Date(min) <= date && date <= new Date(max))
+            (min === '' && date <= new Date(max).setHours(23, 59, 59, 999)) ||
+            (new Date(min).setHours(0, 0, 0, 0) <= date && max === '') ||
+            (new Date(min).setHours(0, 0, 0, 0) <= date && date <= new Date(max).setHours(23, 59, 59, 999))
           ) {
             return true;
           }

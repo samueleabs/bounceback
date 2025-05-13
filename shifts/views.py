@@ -408,13 +408,25 @@ def edit_shift(request, shift_id):
                     'show_warning': True
                 })
             else:
-                form.save()
+                # Preserve the existing is_completed value if not explicitly modified
+                updated_shift = form.save(commit=False)
+                if 'is_completed' not in form.cleaned_data:
+                    updated_shift.is_completed = shift.is_completed
+
+                updated_shift.save()
+
                 Notification.objects.create(user=shift.worker, content=f"Shift on {shift.date} changes made.")
                 return redirect('view_shift', shift_id=shift.id)
     else:
         form = ShiftForm(instance=shift)
     
-    return render(request, 'admin/edit_shift.html', {'form': form, 'shift': shift, 'existing_shifts': existing_shifts, 'show_warning': False, 'firebase_config': settings.FIREBASE_CONFIG,})
+    return render(request, 'admin/edit_shift.html', {
+        'form': form,
+        'shift': shift,
+        'existing_shifts': existing_shifts,
+        'show_warning': False,
+        'firebase_config': settings.FIREBASE_CONFIG,
+    })
 
 @login_required
 @admin_required

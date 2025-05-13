@@ -4,3 +4,4 @@ db.sqlite3
 .env
 firebase-service-account.json
 convert.py
+.qodo
