@@ -41,6 +41,7 @@ urlpatterns = [
     path('dashboard/manage_shifts/', manage_shifts, name='manage_shifts'),
     path('dashboard/create_shift/', create_shift, name='create_shift'),
     path('dashboard/edit_shift/<int:shift_id>/', edit_shift, name='edit_shift'),
+    path('check_existing_shifts/', check_existing_shifts, name='check_existing_shifts'),
     path('dashboard/delete_shift/<int:shift_id>/', delete_shift, name='delete_shift'),
     path('dashboard/view_shift/<int:shift_id>/', view_shift, name='view_shift'),
     path('dashboard/manage_users/', manage_users, name='manage_users'),

@@ -77,8 +77,7 @@
   </div>
 
   <!-- Warning Modal -->
-  {% if show_warning %}
-  <div class="modal fade" tabindex="-1" role="dialog" id="warningModal" style="display: block;">
+  <div class="modal fade" tabindex="-1" role="dialog" id="warningModal" aria-hidden="true">
     <div class="modal-dialog" role="document">
       <div class="modal-content">
         <div class="modal-header">
@@ -89,40 +88,55 @@
         </div>
         <div class="modal-body">
           <p>The worker already has a shift on the selected date:</p>
-          <ul>
-            {% for shift in existing_shifts %}
-            <li>{{ shift.date }}: {{ shift.start_time }} - {{ shift.end_time }} at {{ shift.location }}</li>
-            {% endfor %}
-          </ul>
+          <ul id="existingShiftsList"></ul>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" onclick="dismissWarning()">Back</button>
-          <button type="button" class="btn btn-primary" onclick="document.forms[0].submit();">Proceed Anyway</button>
+          <p>Click anywhere outside the box</p>
         </div>
       </div>
     </div>
   </div>
-  {% endif %}
 {% endblock %}
 
 {% block extra_js %}
+<script>
+  $(document).ready(function () {
+    $('.select2').select2();
 
-  <script>
-    $(document).ready(function() {
-        $('.select2').select2();
+    // Detect changes in the worker field
+    $('#id_worker').change(function () {
+      const workerId = $(this).val();
+      const date = $('#id_date').val();
+
+      if (workerId && date) {
+        // Make an AJAX request to check for existing shifts
+        $.ajax({
+          url: "{% url 'check_existing_shifts' %}",
+          method: "GET",
+          data: {
+            worker_id: workerId,
+            date: date,
+          },
+          success: function (response) {
+            if (response.has_conflict) {
+              // Show the modal if there is a conflict
+              $('#warningModal').modal('show');
+
+              // Populate the modal with existing shift details
+              const shiftList = $('#existingShiftsList');
+              shiftList.empty();
+              response.existing_shifts.forEach(function (shift) {
+                shiftList.append(
+                  `<li>${shift.date}: ${shift.start_time} - ${shift.end_time} at ${shift.location}</li>`
+                );
+              });
+            }
+          },
+        });
+      }
     });
+  });
 
-    // Show the warning modal if needed
-    {% if show_warning %}
-    $(document).ready(function() {
-        $('#warningModal').modal('show');
-    });
-    {% endif %}
-  </script>
-
-  <script>
-    function dismissWarning() {
-        $('#warningModal').modal('hide');
-    }
-  </script>
+  $('#closeModal').modal('hide');
+</script>
 {% endblock %}

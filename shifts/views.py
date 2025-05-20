@@ -391,42 +391,51 @@ def create_shift(request):
 @admin_required
 def edit_shift(request, shift_id):
     shift = get_object_or_404(Shift, id=shift_id)
-    
-    existing_shifts = None
+
     if request.method == 'POST':
         form = ShiftForm(request.POST, instance=shift)
         if form.is_valid():
-            worker = form.cleaned_data['worker']
-            date = form.cleaned_data['date']
-            existing_shifts = Shift.objects.filter(worker=worker, date=date).exclude(id=shift_id)
-            if existing_shifts.exists():
-                # Show warning modal with existing shift details
-                return render(request, 'admin/edit_shift.html', {
-                    'form': form,
-                    'shift': shift,
-                    'existing_shifts': existing_shifts,
-                    'show_warning': True
-                })
-            else:
-                # Preserve the existing is_completed value if not explicitly modified
-                updated_shift = form.save(commit=False)
-                if 'is_completed' not in form.cleaned_data:
-                    updated_shift.is_completed = shift.is_completed
+            # Save the shift
+            updated_shift = form.save(commit=False)
+            if 'is_completed' not in form.cleaned_data:
+                updated_shift.is_completed = shift.is_completed
 
-                updated_shift.save()
+            updated_shift.save()
 
-                Notification.objects.create(user=shift.worker, content=f"Shift on {shift.date} changes made.")
-                return redirect('view_shift', shift_id=shift.id)
+            Notification.objects.create(user=shift.worker, content=f"Shift on {shift.date} changes made.")
+            return redirect('view_shift', shift_id=shift.id)
     else:
         form = ShiftForm(instance=shift)
-    
+
     return render(request, 'admin/edit_shift.html', {
         'form': form,
         'shift': shift,
-        'existing_shifts': existing_shifts,
-        'show_warning': False,
-        'firebase_config': settings.FIREBASE_CONFIG,
     })
+
+@login_required
+@admin_required
+def check_existing_shifts(request):
+    worker_id = request.GET.get('worker_id')
+    date = request.GET.get('date')
+
+    if worker_id and date:
+        existing_shifts = Shift.objects.filter(worker_id=worker_id, date=date)
+        has_conflict = existing_shifts.exists()
+
+        # Serialize the existing shifts for the response
+        existing_shifts_data = [
+            {
+                'date': shift.date.strftime('%Y-%m-%d'),
+                'start_time': shift.start_time.strftime('%H:%M'),
+                'end_time': shift.end_time.strftime('%H:%M'),
+                'location': shift.location.name,
+            }
+            for shift in existing_shifts
+        ]
+
+        return JsonResponse({'has_conflict': has_conflict, 'existing_shifts': existing_shifts_data})
+
+    return JsonResponse({'has_conflict': False})
 
 @login_required
 @admin_required

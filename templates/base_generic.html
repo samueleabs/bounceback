@@ -4,6 +4,8 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#007bff">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/x-icon" href="{% static 'img/site_icon.png' %}">
     <link rel="icon" type="image/png" sizes="48x48" href="{% static 'img/site_icon_48x48.png' %}">
@@ -286,6 +288,18 @@
     
             new Notification(notificationTitle, notificationOptions);
         });
+    </script>
+
+    <script>
+        if ("serviceWorker" in navigator) {
+            navigator.serviceWorker.register("/static/service-worker.js")
+            .then((registration) => {
+                console.log("Service Worker registered with scope:", registration.scope);
+            })
+            .catch((error) => {
+                console.error("Service Worker registration failed:", error);
+            });
+        }
     </script>
 
     {% block extra_js %}{% endblock %}
